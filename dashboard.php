@@ -1,5 +1,6 @@
 <?php
-echo "Dashboard"
+echo "Dashboard";
+?>
 
 <!DOCTYPE html>
 <html lang="en">
