@@ -1,6 +1,3 @@
-<?php
-echo "halo"
-
 <!DOCTYPE html>
 <html lang="en">
 
