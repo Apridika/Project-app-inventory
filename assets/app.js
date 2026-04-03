@@ -35,3 +35,4 @@ dropdowns.forEach((drop) => {
     drop.classList.toggle("open");
   });
 });
+

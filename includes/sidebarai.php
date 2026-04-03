@@ -16,7 +16,7 @@
 <body>
 
   <!-- ====== SIDEBAR ====== -->
-  <aside class="sidebar collapsed" id="sidebar">
+  <aside class="sidebar" id="sidebar">
 
     <!-- Header -->
     <div class="sidebar-header">

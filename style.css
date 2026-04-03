@@ -541,7 +541,7 @@ body {
   display: none;
   flex-direction: column;
   margin-left: 34px;
-  margin-top: 4px;
+  padding: 10px;
 }
 
 /* item dropdown */
