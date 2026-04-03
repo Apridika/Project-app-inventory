@@ -525,3 +525,51 @@ body {
   font-weight: 600;
   color: var(--text-primary);
 }
+
+/* DROPDOWN */
+.dropdown {
+  justify-content: space-between;
+}
+
+.dropdown-icon {
+  font-size: 11px;
+  transition: transform 0.3s;
+}
+
+/* menu dropdown */
+.dropdown-menu {
+  display: none;
+  flex-direction: column;
+  margin-left: 34px;
+  margin-top: 4px;
+}
+
+/* item dropdown */
+.dropdown-item {
+  padding: 8px 10px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  border-radius: 8px;
+  text-decoration: none;
+  transition: 0.3s;
+}
+
+.dropdown-item:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+/* aktif */
+.dropdown.open + .dropdown-menu {
+  display: flex;
+}
+
+/* rotate icon */
+.dropdown.open .dropdown-icon {
+  transform: rotate(180deg);
+}
+
+/* saat sidebar collapse */
+.sidebar.collapsed .dropdown-menu {
+  display: none !important;
+}

@@ -1,19 +1,22 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Admin Sidebar Dashboard</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <!-- <link rel="stylesheet" href="style.css"/> -->
 </head>
+
 <body>
 
   <!-- ====== SIDEBAR ====== -->
-  <aside class="sidebar" id="sidebar">
+  <aside class="sidebar collapsed" id="sidebar">
 
     <!-- Header -->
     <div class="sidebar-header">
@@ -41,10 +44,21 @@
         <span class="nav-text">Dashboard</span>
       </a>
 
-      <a class="nav-item active" href="#" data-tooltip="Calendar">
+      <div class="nav-item dropdown" data-tooltip="Data Barang">
         <span class="nav-icon"><i class="fa-solid fa-box"></i></span>
         <span class="nav-text">Data Barang</span>
-      </a>
+        <span class="dropdown-icon"><i class="fa-solid fa-chevron-down"></i></span>
+      </div>
+
+      <div class="dropdown-menu">
+        <a href="#" class="dropdown-item">Tambah Barang</a>
+        <a href="#" class="dropdown-item">List Barang</a>
+      </div>
+
+      <!-- <a class="nav-item active" href="#" data-tooltip="Calendar">
+        <span class="nav-icon"><i class="fa-solid fa-box"></i></span>
+        <span class="nav-text">Data Barang</span>
+      </a> -->
 
       <a class="nav-item" href="#" data-tooltip="Notifications">
         <span class="nav-icon"><i class="fa-solid fa-circle-user"></i></span>
@@ -91,8 +105,7 @@
         </div>
       </a>
 
-      <a class="nav-item" href="#" data-tooltip="Logout"
-        style="color: #f87171;">
+      <a class="nav-item" href="#" data-tooltip="Logout" style="color: #f87171;">
         <span class="nav-icon"><i class="fa-solid fa-right-from-bracket"></i></span>
         <span class="nav-text" style="color: #f87171;">Logout</span>
       </a>
@@ -102,4 +115,5 @@
 
 
 </body>
+
 </html>
