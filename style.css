@@ -10,18 +10,15 @@
   --sidebar-width: 250px;
   --sidebar-collapsed: 70px;
   --bg-sidebar: #0a0a0a;
-  --bg-sidebar-secondary: #ffffff;
   --bg-hover: rgba(255, 255, 255, 0.05);
   --bg-active: rgba(255, 255, 255, 0.1);
   --accent-blue: #7c7c7c;
-  --accent-cyan: #9d8b8b;
   --accent-gradient: linear-gradient(135deg, #59667b, #2f3334);
   --text-primary: #f1f5f9;
   --text-secondary: #94a3b8;
   --text-active: #ffffff;
   --border-subtle: rgb(27, 27, 27);
   --shadow-sidebar: 4px 0 40px rgba(0, 0, 0, 0.4);
-  --shadow-logo: 0 4px 20px rgba(59, 130, 246, 0.4);
   --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   --radius-sidebar: 0 22px 22px 0;
   --radius-menu: 12px;
@@ -47,7 +44,7 @@ body {
 
 .header {
   height: 60px;
-  background: var(--bg-card);
+  background: var(--bg-sidebar);
 }
 
 .content {
@@ -96,11 +93,12 @@ body {
 }
 
 .logo-circle {
+  margin-left: 4px;
   font-size: 14px;
   font-weight: 800;
   color: white;
-  width: 70px;
-  height: 70%;
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -464,7 +462,7 @@ body {
 }
 
 .date-badge {
-  background: var(--bg-card);
+  background: var(--bg-sidebar);
   border: 1px solid var(--border-subtle);
   padding: 10px 16px;
   border-radius: 10px;
@@ -479,7 +477,7 @@ body {
   width: 38px;
   height: 38px;
   border-radius: 10px;
-  background: var(--bg-card);
+  background: var(--bg-sidebar);
   border: 1px solid var(--border-subtle);
   display: flex;
   align-items: center;
@@ -492,7 +490,7 @@ body {
     color var(--transition);
 }
 .notif-btn:hover {
-  background: var(--bg-card-2);
+  background: var(--bg-hover);
   color: var(--text-primary);
 }
 .notif-dot {
@@ -502,15 +500,15 @@ body {
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: var(--text-primary);
-  border: 2px solid var(--bg-body);
+  background: red;
+  border: 2px solid red;
 }
 
 .topbar-user {
   display: flex;
   align-items: center;
   gap: 10px;
-  background: var(--bg-card);
+  background: var(--bg-sidebar);
   border: 1px solid var(--border-subtle);
   padding: 6px 14px 6px 8px;
   border-radius: 99px;
@@ -518,7 +516,7 @@ body {
   transition: background var(--transition);
 }
 .topbar-user:hover {
-  background: var(--bg-card-2);
+  background: var(--bg-hover);
 }
 .topbar-avatar {
   width: 30px;
