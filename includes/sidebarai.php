@@ -39,7 +39,7 @@
 
       <span class="nav-label">Main Menu</span>
 
-      <a class="nav-item" href="#" data-tooltip="Dashboard">
+      <a class="nav-item" href="../dashboard.php" data-tooltip="Dashboard">
         <span class="nav-icon"><i class="fa-solid fa-house"></i></span>
         <span class="nav-text">Dashboard</span>
       </a>
