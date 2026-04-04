@@ -22,7 +22,7 @@
     <div class="sidebar-header">
       <div class="logo-area">
         <div class="logo-circle">
-          <img src="logoyh1.jpeg" alt="Logo" style="width: 100%; height:100%; object-fit: cover;">
+          <img src="../assets/logoyh1.jpeg" alt="Logo" style="width: 100%; height:100%; object-fit: cover;">
         </div>
         <div class="logo-text">
           <span class="logo-name">Yudhistira</span>
@@ -39,7 +39,7 @@
 
       <span class="nav-label">Main Menu</span>
 
-      <a class="nav-item" href="#" data-tooltip="Dashboard">
+      <a class="nav-item" href="../dashboard.php" data-tooltip="Dashboard">
         <span class="nav-icon"><i class="fa-solid fa-house"></i></span>
         <span class="nav-text">Dashboard</span>
       </a>
@@ -52,7 +52,7 @@
 
       <div class="dropdown-menu">
         <a href="#" class="dropdown-item">Tambah Barang</a>
-        <a href="#" class="dropdown-item">List Barang</a>
+        <a href="../pages/data_barang.php" class="dropdown-item">List Barang</a>
       </div>
 
       <!-- <a class="nav-item active" href="#" data-tooltip="Calendar">
