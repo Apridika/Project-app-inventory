@@ -538,10 +538,12 @@ body {
 
 /* menu dropdown */
 .dropdown-menu {
-  display: none;
+  display: flex;
+  overflow:hidden;
+  max-height: 0;
+  transition: max-height 0.3s ease;
   flex-direction: column;
   margin-left: 34px;
-  padding: 10px;
 }
 
 /* item dropdown */
@@ -561,6 +563,7 @@ body {
 
 /* aktif */
 .dropdown.open + .dropdown-menu {
+  max-height: 200px;
   display: flex;
 }
 

@@ -71,7 +71,7 @@
         <span class="nav-text">Kasir</span>
       </a>
 
-      <div class="nav-divider"></div>
+      <!-- <div class="nav-divider"></div>
       <span class="nav-label">Laporan</span>
 
       <a class="nav-item" href="#" data-tooltip="Analytics">
@@ -90,7 +90,7 @@
       <a class="nav-item" href="#" data-tooltip="Settings">
         <span class="nav-icon"><i class="fa-solid fa-gear"></i></span>
         <span class="nav-text">Settings</span>
-      </a>
+      </a> -->
 
     </nav>
 
