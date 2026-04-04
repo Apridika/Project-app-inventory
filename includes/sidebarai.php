@@ -51,8 +51,9 @@
       </div>
 
       <div class="dropdown-menu">
-        <a href="#" class="dropdown-item">Tambah Barang</a>
-        <a href="../pages/data_barang.php" class="dropdown-item">List Barang</a>
+        <a href="../pages/data_barang.php" class="dropdown-item">List Produk</a>
+        <a href="../pages/tambah.php" class="dropdown-item">Tambah Produk</a>
+        <a href="../pages/tambah_varian.php" class="dropdown-item">Tambah Varian</a>
       </div>
 
       <!-- <a class="nav-item active" href="#" data-tooltip="Calendar">

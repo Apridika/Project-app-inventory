@@ -692,3 +692,68 @@ body {
 .btn-icon.delete:hover {
   color: #ef4444;
 }
+
+/* edit.php */
+/* FORM */
+.form-modern {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-group label {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.form-group input ,.form-group select {
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-card);
+  color: white;
+  outline: none;
+  transition: 0.2s;
+}
+
+select option {
+  background: #0f0f0f; /* kadang tidak bekerja di semua browser */
+  color: #ffffff;
+}
+
+.form-group input:focus {
+  border-color: #000000;
+}
+
+/* ACTION BUTTON */
+.form-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.btn-secondary {
+  padding: 8px 14px;
+  border-radius: 8px;
+  background: var(--bg-hover);
+  color: var(--text-primary);
+  text-decoration: none;
+  border: 1px solid var(--border-subtle);
+  transition: 0.2s;
+}
+
+.btn-secondary:hover {
+  background: var(--bg-active);
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
