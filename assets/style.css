@@ -576,3 +576,78 @@ body {
 .sidebar.collapsed .dropdown-menu {
   display: none !important;
 }
+
+
+/* HEADER */
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+}
+
+.page-header h2 {
+  color: var(--text-primary);
+}
+
+/* CARD */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  padding: 20px;
+}
+
+/* TABLE */
+.product-table {
+  width: 100%;
+  border-collapse: collapse;
+  color: white;
+}
+
+.product-table th,
+.product-table td {
+  padding: 12px;
+  text-align: center;
+}
+
+.product-table thead {
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.product-table tbody tr {
+  border-bottom: 1px solid var(--border-subtle);
+  transition: 0.2s;
+}
+
+.product-table tbody tr:hover {
+  background: var(--bg-hover);
+}
+
+/* BUTTON */
+.btn-primary {
+  background: var(--accent-gradient);
+  border: none;
+  padding: 8px 14px;
+  border-radius: 8px;
+  color: white;
+  cursor: pointer;
+}
+
+.btn-edit {
+  background: #00ff5e;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 6px;
+  color: white;
+  cursor: pointer;
+}
+
+.btn-delete {
+  background: #ff0000;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 6px;
+  color: white;
+  cursor: pointer;
+}
