@@ -26,3 +26,13 @@ navItems.forEach((item) => {
     this.classList.add("active");
   });
 });
+
+// Dropdown toggle
+const dropdowns = document.querySelectorAll(".dropdown");
+
+dropdowns.forEach((drop) => {
+  drop.addEventListener("click", () => {
+    drop.classList.toggle("open");
+  });
+});
+
