@@ -4,6 +4,7 @@
 
 <?php
 include '../includes/koneksi.php';
+include '../includes/head.php';
 
 $keyword = isset($_GET['keyword']) ? $_GET['keyword'] : '';
 $keyword = mysqli_real_escape_string($conn, $keyword);
@@ -76,42 +77,44 @@ $result = mysqli_query($conn, $query);
                             <th>Aksi</th>
                         </tr>
                     </thead>
-                    <?php $no = 1; ?>
-                    <?php while($row = mysqli_fetch_assoc($result)) { ?>
                     <tbody>
+                        <?php $no = 1; ?>
+                        <?php while($row = mysqli_fetch_assoc($result)) { ?>
+
                         <tr>
                             <td>
                                 <?= $no++; ?>
                             </td>
                             <td>
-                                <?= $row['product_name']; ?>
+                                <?= htmlspecialchars($row['product_name']); ?>
                             </td>
                             <td>
-                                <?= $row['type'] ?? '-'; ?>
+                                <?= htmlspecialchars($row['type'] ?? '-'); ?>
                             </td>
                             <td>
-                                <?= $row['size']; ?>
+                                <?= htmlspecialchars($row['size']); ?>
                             </td>
                             <td>
-                                <?= $row['color']; ?>
+                                <?= htmlspecialchars($row['color']); ?>
                             </td>
                             <td>
-                                <?= $row['sku']; ?>
+                                <?= htmlspecialchars($row['sku']); ?>
                             </td>
                             <td>
-                                <?= $row['price']; ?>
+                                <?= 'Rp ' . number_format($row['price'], 0, ',', '.'); ?>
                             </td>
                             <td>
-                                <?= $row['stock']; ?>
+                                <?= (int) $row['stock']; ?>
                             </td>
                             <td class="action-cell">
                                 <a href="edit.php?id=<?= $row['id']; ?>" class="btn-icon edit">
                                     <i class="fa-solid fa-pen"></i>
                                 </a>
-                                <a href="hapus.php?id=<?= $row['id']; ?>" class="btn-icon delete" onclick="return confirm('Yakin?')">
+                                <a href="hapus.php?id=<?= $row['id']; ?>" class="btn-icon delete"
+                                    onclick="return confirm('Yakin?')">
                                     <i class="fa-solid fa-trash"></i>
                                 </a>
-</td>
+                            </td>
                         </tr>
                     </tbody>
                     <?php } ?>

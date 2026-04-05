@@ -4,10 +4,40 @@
 
 <?php
 include '../includes/koneksi.php';
-$id = $_GET['id'];
 
-$data = mysqli_query($conn, "SELECT * FROM product_variants WHERE id=$id");
-$row = mysqli_fetch_assoc($data);
+$id = (int) ($_GET['id'] ?? 0);
+
+if ($id <= 0) {
+    die("ID tidak valid.");
+}
+
+$query = "
+    SELECT 
+        pv.id,
+        pv.sku,
+        pv.price,
+        pv.stock,
+        p.name AS product_name,
+        t.name AS type_name,
+        s.name AS sizes_name,
+        c.name AS color_name
+    FROM product_variants pv
+    LEFT JOIN products p ON pv.product_id = p.id
+    LEFT JOIN types t ON pv.type_id = t.id
+    LEFT JOIN sizes s ON pv.size_id = s.id
+    LEFT JOIN colors c ON pv.color_id = c.id
+    WHERE pv.id = ?
+";
+
+$stmt = mysqli_prepare($conn, $query);
+mysqli_stmt_bind_param($stmt, "i", $id);
+mysqli_stmt_execute($stmt);
+$result = mysqli_stmt_get_result($stmt);
+$row = mysqli_fetch_assoc($result);
+
+if (!$row) {
+    die("Data tidak ditemukan.");
+}
 ?>
 
 <div class="layout">
@@ -27,28 +57,49 @@ $row = mysqli_fetch_assoc($data);
             <div class="card form-card">
                 <form action="proses_edit.php" method="POST" class="form-modern">
 
-                    <input type="hidden" name="id" value="<?= $row['id']; ?>">
+                    <input type="hidden" name="id" value="<?= (int)$row['id']; ?>">
+                <div class="form-grid">
+                
+                    <div class="form-group">
+                        <label>Nama Produk</label>
+                        <div class="form-static"><?= htmlspecialchars($row['product_name']); ?></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Jenis</label>
+                        <div class="form-static"><?= htmlspecialchars($row['type_name']); ?></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Ukuran</label>
+                        <div class="form-static"><?= htmlspecialchars($row['sizes_name'] ?? '-'); ?></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Warna</label>
+                        <div class="form-static"><?= htmlspecialchars($row['color_name'] ?? '-'); ?></div>
+                    </div>
 
                     <div class="form-group">
                         <label>SKU</label>
-                        <input type="text" name="sku" value="<?= $row['sku']; ?>">
+                        <input type="text" name="sku" value="<?= htmlspecialchars($row['sku']); ?>" required>
                     </div>
                     
                     <div class="form-group">
                         <label>Harga</label>
-                        <input type="number" name="price" value="<?= $row['price']; ?>">
+                        <input type="number" name="price" value="<?= (int)$row['price']; ?>" required min="0">
                     </div>
 
                     <div class="form-group">
                         <label>Stok</label>
-                        <input type="number" name="stock" value="<?= $row['stock']; ?>">
+                        <input type="number" name="stock" value="<?= (int)$row['stock']; ?>" required min="0">
                     </div>
-
+                </div>  
                     <div class="form-actions">
                         <button type="submit" class="btn-secondary">Update</button>
                         <a href="data_barang.php" class="btn-secondary">Batal</a>
                     </div>
-
+                
                 </form>
             </div>
 

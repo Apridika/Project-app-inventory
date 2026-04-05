@@ -1,8 +1,22 @@
 <?php
 include '../includes/koneksi.php';
 
-$name = $_POST['name'];
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    header("Location: tambah.php");
+    exit;
+}
 
-mysqli_query($conn, "INSERT INTO products (name) VALUES ('$name')");
+$name = trim($_POST['name'] ?? '');
 
-header("Location: tambah_varian.php");
+if ($name === '') {
+    die("Nama produk wajib diisi.");
+}
+
+$stmt = mysqli_prepare($conn, "INSERT INTO products (name) VALUES (?)");
+mysqli_stmt_bind_param($stmt, "s", $name);
+if (mysqli_stmt_execute($stmt)) {
+    header("Location: tambah_varian.php?success=produk_tambah");
+    exit;
+} else {
+    die("Gagal menambahkan produk: " . mysqli_error($conn));
+}

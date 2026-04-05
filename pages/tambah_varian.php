@@ -1,6 +1,9 @@
 <head>
   <link rel="stylesheet" href="../assets/style.css">
 </head>
+
+<?php include "../includes/head.php"; ?>
+
 <div class="layout">
 
   <?php include "../includes/sidebarai.php"; 
@@ -21,7 +24,7 @@ $colors = mysqli_query($conn, "SELECT * FROM colors");
     <div class="content-wrap">
 
       <div class="page-header">
-        <h2>Tambah Produk</h2>
+        <h2>Tambah Varian</h2>
       </div>
 
       <div class="card form-card">
@@ -31,10 +34,10 @@ $colors = mysqli_query($conn, "SELECT * FROM colors");
 
             <div class="form-group">
               <label>Nama Produk</label>
-              <select name="product_id">
+              <select name="product_id" required>
                 <?php while($p = mysqli_fetch_assoc($products)) { ?>
-                <option value="<?= $p['id']; ?>">
-                  <?= $p['name']; ?>
+                <option value="<?= (int)$p['id']; ?>">
+                  <?= htmlspecialchars($p['name']); ?>
                 </option>
                 <?php } ?>
               </select>
@@ -45,34 +48,34 @@ $colors = mysqli_query($conn, "SELECT * FROM colors");
               <select name="type_id">
                 <option value="">-- Tidak ada --</option>
                 <?php while($t = mysqli_fetch_assoc($types)) { ?>
-                <option value="<?= $t['id']; ?>">
-                  <?= $t['name']; ?>
+                <option value="<?= (int)$t['id']; ?>">
+                  <?= htmlspecialchars($t['name']); ?>
                 </option>
                 <?php } ?>
               </select>
             </div>
-<div class="form-group">
-  <label>Ukuran</label>
-<select name="size_id">
-              <?php while($s = mysqli_fetch_assoc($sizes)) { ?>
-              <option value="<?= $s['id']; ?>">
-                <?= $s['name']; ?>
-              </option>
-              <?php } ?>
-            </select>
-</div>
-            
-<div class="form-group">
-  <label>Warna</label>
-<select name="color_id">
-              <?php while($c = mysqli_fetch_assoc($colors)) { ?>
-              <option value="<?= $c['id']; ?>">
-                <?= $c['name']; ?>
-              </option>
-              <?php } ?>
-            </select>
-</div>
-            
+            <div class="form-group">
+              <label>Ukuran</label>
+              <select name="size_id" required>
+                <?php while($s = mysqli_fetch_assoc($sizes)) { ?>
+                <option value="<?= (int)$s['id']; ?>">
+                  <?= htmlspecialchars($s['name']); ?>
+                </option>
+                <?php } ?>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Warna</label>
+              <select name="color_id" required>
+                <?php while($c = mysqli_fetch_assoc($colors)) { ?>
+                <option value="<?= (int)$c['id']; ?>">
+                  <?= htmlspecialchars($c['name']); ?>
+                </option>
+                <?php } ?>
+              </select>
+            </div>
+
 
             <div class="form-group">
               <label>SKU</label>

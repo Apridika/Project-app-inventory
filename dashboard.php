@@ -7,6 +7,8 @@
     <link rel="stylesheet" href="/assets/style.css">
 </head>
 
+<?php include "includes/head.php"; ?>
+
 <body>
     
     <div class="layout">
