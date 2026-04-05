@@ -55,5 +55,5 @@ $row = mysqli_fetch_assoc($data);
         </div>
 
     </main>
-    <script src="../assets/app"></script>
+    <script src="../assets/app.js"></script>
 </div>
