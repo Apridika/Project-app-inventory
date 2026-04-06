@@ -1,3 +1,12 @@
+<?php
+$currentPage = basename($_SERVER['PHP_SELF']);
+$isDataBarang = in_array($currentPage, [
+  'data_barang.php',
+  'tambah.php',
+  'tambah_varian.php',
+  'edit.php'
+]);
+?>
   <!-- ====== SIDEBAR ====== -->
   <aside class="sidebar" id="sidebar">
 
@@ -5,7 +14,7 @@
     <div class="sidebar-header">
       <div class="logo-area">
         <div class="logo-circle">
-          <img src="../assets/logoyh1.jpeg" alt="Logo" style="width: 100%; height:100%; object-fit: cover;">
+          <img src="/assets/logoyh1.jpeg" alt="Logo" style="width: 100%; height:100%; object-fit: cover;">
         </div>
         <div class="logo-text">
           <span class="logo-name">Yudhistira</span>
@@ -22,21 +31,21 @@
 
       <span class="nav-label">Main Menu</span>
 
-      <a class="nav-item" href="../dashboard.php" data-tooltip="Dashboard">
+      <a class="nav-item <?= $currentPage === 'dashboard.php' ? 'active' : ''; ?>" href="/dashboard.php" data-tooltip="Dashboard">
         <span class="nav-icon"><i class="fa-solid fa-house"></i></span>
         <span class="nav-text">Dashboard</span>
       </a>
 
-      <div class="nav-item dropdown" data-tooltip="Data Barang">
+      <div class="nav-item dropdown  <?= $isDataBarang ? 'active open' : ''; ?>" data-tooltip="Data Barang">
         <span class="nav-icon"><i class="fa-solid fa-box"></i></span>
         <span class="nav-text">Data Barang</span>
         <span class="dropdown-icon"><i class="fa-solid fa-chevron-down"></i></span>
       </div>
 
       <div class="dropdown-menu">
-        <a href="../pages/data_barang.php" class="dropdown-item">List Produk</a>
-        <a href="../pages/tambah.php" class="dropdown-item">Tambah Produk</a>
-        <a href="../pages/tambah_varian.php" class="dropdown-item">Tambah Varian</a>
+        <a href="/pages/data_barang.php" class="dropdown-item <?= $currentPage === 'data_barang.php' || $currentPage === 'edit.php' ? 'active' : ''; ?>">List Produk</a>
+        <a href="/pages/tambah.php" class="dropdown-item <?= $currentPage === 'tambah.php' ? 'active' : ''; ?>">Tambah Produk</a>
+        <a href="/pages/tambah_varian.php" class="dropdown-item <?= $currentPage === 'tambah_varian.php' ? 'active' : ''; ?>">Tambah Varian</a>
       </div>
 
       <!-- <a class="nav-item active" href="#" data-tooltip="Calendar">

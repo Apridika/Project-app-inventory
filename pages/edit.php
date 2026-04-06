@@ -4,6 +4,7 @@
 
 <?php
 include '../includes/koneksi.php';
+INCLUDE '../includes/head.php';
 
 $id = (int) ($_GET['id'] ?? 0);
 
