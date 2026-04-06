@@ -1,8 +1,9 @@
-<head>
-  <link rel="stylesheet" href="../assets/style.css">
-</head>
+<!DOCTYPE html>
+<html lang="id">
 
-<?php include "../includes/head.php"; ?>
+<?php 
+$title = "Tambah Varian";
+include "../includes/head.php"; ?>
 
 <div class="layout">
 
@@ -107,3 +108,4 @@ $colors = mysqli_query($conn, "SELECT * FROM colors");
   </main>
   <script src="../assets/app.js"></script>
 </div>
+</html>

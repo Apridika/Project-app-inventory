@@ -2,9 +2,11 @@
 $currentPage = basename($_SERVER['PHP_SELF']);
 $isDataBarang = in_array($currentPage, [
   'data_barang.php',
-  'tambah.php',
   'tambah_varian.php',
-  'edit.php'
+  'edit.php',
+  'master_data.php',
+  'tambah_master.php',
+  'edit_master.php'
 ]);
 ?>
   <!-- ====== SIDEBAR ====== -->
@@ -44,7 +46,7 @@ $isDataBarang = in_array($currentPage, [
 
       <div class="dropdown-menu">
         <a href="/pages/data_barang.php" class="dropdown-item <?= $currentPage === 'data_barang.php' || $currentPage === 'edit.php' ? 'active' : ''; ?>">List Produk</a>
-        <a href="/pages/tambah.php" class="dropdown-item <?= $currentPage === 'tambah.php' ? 'active' : ''; ?>">Tambah Produk</a>
+        <a href="/pages/master_data.php" class="dropdown-item <?= $currentPage === 'master_data.php' || $currentPage === 'tambah_master.php' || $currentPage === 'edit_master.php' ? 'active' : ''; ?>">Master Data</a>
         <a href="/pages/tambah_varian.php" class="dropdown-item <?= $currentPage === 'tambah_varian.php' ? 'active' : ''; ?>">Tambah Varian</a>
       </div>
 

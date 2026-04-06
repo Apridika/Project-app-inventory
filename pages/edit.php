@@ -1,8 +1,8 @@
-<head>
-    <link rel="stylesheet" href="../assets/style.css">
-</head>
+<!DOCTYPE html>
+<html lang="id">
 
 <?php
+$title = "Edit Varian";
 include '../includes/koneksi.php';
 INCLUDE '../includes/head.php';
 
@@ -109,3 +109,4 @@ if (!$row) {
     </main>
     <script src="../assets/app.js"></script>
 </div>
+</html>

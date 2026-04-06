@@ -1,8 +1,9 @@
-<head>
-    <link rel="stylesheet" href="/assets/style.css">
-</head>
+<!DOCTYPE html>
+<html lang="id">
+
 
 <?php
+$title = "Data Barang";
 include '../includes/koneksi.php';
 include '../includes/head.php';
 
@@ -127,3 +128,4 @@ $result = mysqli_query($conn, $query);
 
     <script src="../assets/app.js"></script>
 </div>
+</html>
