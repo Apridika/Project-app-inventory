@@ -1,10 +1,14 @@
+<?php
+require_once '../includes/auth_check.php';
+require_once '../includes/koneksi.php';
+?>
+
 <!DOCTYPE html>
 <html lang="id">
 
 <?php
 $title = "Edit Varian";
-include '../includes/koneksi.php';
-INCLUDE '../includes/head.php';
+include '../includes/head.php';
 
 $id = (int) ($_GET['id'] ?? 0);
 

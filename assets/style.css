@@ -235,7 +235,8 @@ body {
   color: var(--text-primary);
 }
 
-.nav-item.active, .dropdown-item.active {
+.nav-item.active,
+.dropdown-item.active {
   background: var(--bg-active);
   color: var(--text-active);
 }
@@ -771,4 +772,77 @@ select option {
 .card h3 {
   color: var(--text-primary);
   margin-bottom: 10px;
+}
+
+/* ================= LOGIN ================= */
+
+.login-container {
+  width: 100%;
+  height: 100vh;
+  background: #050505;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.login-card {
+  width: 360px;
+  background: #0f0f0f;
+  border: 1px solid #1b1b1b;
+  border-radius: 14px;
+  padding: 30px;
+}
+
+.login-header {
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+.login-logo {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  margin-bottom: 10px;
+  border-radius: 20%;
+}
+
+.login-header h2 {
+  color: white;
+  margin-bottom: 5px;
+}
+
+.login-header p {
+  color: #94a3b8;
+  font-size: 13px;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.btn-login {
+  padding: 10px;
+  background: linear-gradient(135deg, #59667b, #2f3334);
+  border: none;
+  border-radius: 8px;
+  color: white;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: 0.2s;
+}
+
+.btn-login:hover {
+  opacity: 0.9;
+}
+
+.alert-error {
+  background: #3b0d0d;
+  border: 1px solid #ef4444;
+  color: #ef4444;
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  font-size: 13px;
 }

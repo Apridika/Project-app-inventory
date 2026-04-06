@@ -1,8 +1,10 @@
-
+<?php
+require_once '../includes/auth_check.php';
+require_once '../includes/koneksi.php';
+?>
 
 <?php
 include '../includes/head.php';
-include '../includes/koneksi.php';
 
 $products = mysqli_query($conn, "SELECT * FROM products ORDER BY id DESC");
 $types    = mysqli_query($conn, "SELECT * FROM types ORDER BY id DESC");

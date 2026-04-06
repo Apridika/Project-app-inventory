@@ -1,3 +1,4 @@
+<?php require_once __DIR__ . '/session.php'; ?>
 <?php
 $currentPage = basename($_SERVER['PHP_SELF']);
 $isDataBarang = in_array($currentPage, [
@@ -93,14 +94,14 @@ $isDataBarang = in_array($currentPage, [
     <div class="sidebar-footer">
 
       <a class="nav-item user-card" href="#" data-tooltip="Profile">
-        <div class="user-avatar">A</div>
+        <div class="user-avatar"><?= htmlspecialchars($_SESSION['user_name'] ?? 'User')[0]; ?></div>
         <div class="user-info">
-          <div class="user-name">Aridika</div>
-          <div class="user-role">Super Admin</div>
+          <div class="user-name"><?= htmlspecialchars($_SESSION['user_name'] ?? 'User'); ?></div>
+          <div class="user-role"><?= htmlspecialchars($_SESSION['role'] ?? 'Role'); ?></div>
         </div>
       </a>
 
-      <a class="nav-item" href="#" data-tooltip="Logout" style="color: #f87171;">
+      <a class="nav-item" href="../logout.php" data-tooltip="Logout" style="color: #f87171;">
         <span class="nav-icon"><i class="fa-solid fa-right-from-bracket"></i></span>
         <span class="nav-text" style="color: #f87171;">Logout</span>
       </a>

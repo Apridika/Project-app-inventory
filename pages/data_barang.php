@@ -1,10 +1,14 @@
+<?php
+require_once '../includes/auth_check.php';
+require_once '../includes/koneksi.php';
+?>
+
 <!DOCTYPE html>
 <html lang="id">
 
 
 <?php
 $title = "Data Barang";
-include '../includes/koneksi.php';
 include '../includes/head.php';
 
 $keyword = isset($_GET['keyword']) ? $_GET['keyword'] : '';

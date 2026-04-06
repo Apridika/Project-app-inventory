@@ -1,5 +1,9 @@
 <?php
-include '../includes/koneksi.php';
+require_once '../includes/auth_check.php';
+require_once '../includes/koneksi.php';
+?>
+
+<?php
 
 $id = (int) ($_GET['id'] ?? 0);
 

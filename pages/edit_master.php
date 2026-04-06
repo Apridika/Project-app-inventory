@@ -1,7 +1,10 @@
+<?php
+require_once '../includes/auth_check.php';
+require_once '../includes/koneksi.php';
+?>
 
 <?php
 include '../includes/head.php';
-include '../includes/koneksi.php';
 
 $allowed_tables = ['products', 'types', 'sizes', 'colors'];
 

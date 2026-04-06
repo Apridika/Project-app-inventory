@@ -1,5 +1,8 @@
 <?php
-include '../includes/koneksi.php';
+require_once '../includes/auth_check.php';
+require_once '../includes/koneksi.php';
+?>
+<?php
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header("Location: tambah_varian.php");
