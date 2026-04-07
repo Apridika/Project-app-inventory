@@ -1,6 +1,6 @@
 <?php if (isset($_GET['error'])): ?>
 
-<div class="alert-error">
+<div class="alert-error-login">
     <?= htmlspecialchars($_GET['error']); ?>
 </div>
 

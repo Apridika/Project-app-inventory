@@ -837,7 +837,7 @@ select option {
   opacity: 0.9;
 }
 
-.alert-error {
+.alert-error-login {
   background: #3b0d0d;
   border: 1px solid #ef4444;
   color: #ef4444;
@@ -845,4 +845,21 @@ select option {
   border-radius: 8px;
   margin-bottom: 15px;
   font-size: 13px;
+}
+
+.alert {
+    padding: 12px 16px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    font-weight: 500;
+}
+
+.alert-success {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.alert-error {
+    background: #fee2e2;
+    color: #991b1b;
 }
