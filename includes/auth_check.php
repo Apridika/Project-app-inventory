@@ -25,6 +25,6 @@ function requireRole(array $allowedRoles): void
     $role = $_SESSION['role'] ?? '';
 
     if (!in_array($role, $allowedRoles, true)) {
-        redirectTo('dashboard.php?error=Akses ditolak');
+        redirectTo('dashboard.php?error=' . urlencode('Akses ditolak'));
     }
 }
