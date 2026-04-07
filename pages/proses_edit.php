@@ -2,19 +2,15 @@
 require_once '../includes/auth_check.php';
 requireLogin();
 require_once '../includes/koneksi.php';
-?>
-
-<?php
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    header("Location: data_barang.php");
+    redirectTo('pages/data_barang.php');
     exit;
 }
 
 $id    = (int) ($_POST['id'] ?? 0);
 $sku   = trim($_POST['sku'] ?? '');
 $price = (int) ($_POST['price'] ?? -1);
-$stock = (int) ($_POST['stock'] ?? -1);
 
 if ($id <= 0) {
     die("ID tidak valid.");
@@ -28,10 +24,6 @@ if ($price < 0) {
     die("Harga tidak valid.");
 }
 
-if ($stock < 0) {
-    die("Stok tidak valid.");
-}
-
 // cek SKU dipakai varian lain atau tidak
 $checkSku = mysqli_prepare($conn, "SELECT id FROM product_variants WHERE sku = ? AND id != ?");
 mysqli_stmt_bind_param($checkSku, "si", $sku, $id);
@@ -42,11 +34,11 @@ if (mysqli_num_rows($skuResult) > 0) {
     die("SKU sudah dipakai data lain.");
 }
 
-$stmt = mysqli_prepare($conn, "UPDATE product_variants SET sku = ?, price = ?, stock = ? WHERE id = ?");
-mysqli_stmt_bind_param($stmt, "siii", $sku, $price, $stock, $id);
+$stmt = mysqli_prepare($conn, "UPDATE product_variants SET sku = ?, price = ? WHERE id = ?");
+mysqli_stmt_bind_param($stmt, "sii", $sku, $price, $id);
 
 if (mysqli_stmt_execute($stmt)) {
-    header("Location: data_barang.php?success=update");
+    redirectTo('pages/data_barang.php?success=update');
     exit;
 } else {
     die("Gagal update data: " . mysqli_error($conn));
