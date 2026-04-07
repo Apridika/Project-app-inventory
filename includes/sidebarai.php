@@ -13,6 +13,9 @@ $isDataBarang = in_array($currentPage, [
 
 $isStokMasuk = in_array($currentPage, [
   'stok_masuk.php',
+]);
+
+$isRiwayatStokMasuk = in_array($currentPage, [
   'riwayat_stok_masuk.php',
   'detail_stok_masuk.php'
 ]);
@@ -71,24 +74,13 @@ $isKasir = in_array($currentPage, [
         class="dropdown-item <?= $currentPage === 'tambah_varian.php' ? 'active' : ''; ?>">Tambah Varian</a>
     </div>
 
-    <!-- <a class="nav-item active" href="#" data-tooltip="Calendar">
-        <span class="nav-icon"><i class="fa-solid fa-box"></i></span>
-        <span class="nav-text">Data Barang</span>
-      </a> -->
-
-    <a class="nav-item" href="#" data-tooltip="Notifications">
-      <span class="nav-icon"><i class="fa-solid fa-circle-user"></i></span>
-      <span class="nav-text">Data User</span>
-      <span class="nav-badge">4</span>
-    </a>
-
     <a class="nav-item <?= $isStokMasuk ? 'active' : ''; ?>" href="<?= url('pages/stok_masuk.php') ?>"
       data-tooltip="Stok Masuk">
       <span class="nav-icon"><i class="fa-solid fa-dolly"></i></span>
       <span class="nav-text">Stok Masuk</span>
     </a>
 
-    <a class="nav-item <?= $currentPage === 'riwayat_stok_masuk.php' ? 'active' : ''; ?>"
+    <a class="nav-item <?= $currentPage === 'riwayat_stok_masuk.php' || $currentPage === 'detail_stok_masuk.php' ? 'active' : ''; ?>"
       href="<?= url('pages/riwayat_stok_masuk.php') ?>" data-tooltip="Riwayat Stok Masuk">
       <span class="nav-icon"><i class="fa-solid fa-clock-rotate-left"></i></span>
       <span class="nav-text">Riwayat Stok Masuk</span>
@@ -103,6 +95,12 @@ $isKasir = in_array($currentPage, [
   <span class="nav-icon"><i class="fa-solid fa-receipt"></i></span>
   <span class="nav-text">Riwayat Kasir</span>
 </a>
+
+    <a class="nav-item" href="#" data-tooltip="Notifications">
+      <span class="nav-icon"><i class="fa-solid fa-circle-user"></i></span>
+      <span class="nav-text">Data User</span>
+      <span class="nav-badge">4</span>
+    </a>
 
     <!-- <div class="nav-divider"></div>
       <span class="nav-label">Laporan</span>
@@ -123,6 +121,11 @@ $isKasir = in_array($currentPage, [
       <a class="nav-item" href="#" data-tooltip="Settings">
         <span class="nav-icon"><i class="fa-solid fa-gear"></i></span>
         <span class="nav-text">Settings</span>
+      </a> -->
+
+          <!-- <a class="nav-item active" href="#" data-tooltip="Calendar">
+        <span class="nav-icon"><i class="fa-solid fa-box"></i></span>
+        <span class="nav-text">Data Barang</span>
       </a> -->
 
   </nav>
