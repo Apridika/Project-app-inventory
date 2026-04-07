@@ -78,7 +78,7 @@ if (!$row) {
                             <div class="form-group">
                                 <label>Jenis</label>
                                 <div class="form-static">
-                                    <?= htmlspecialchars($row['type_name']); ?>
+                                    <?= htmlspecialchars($row['type_name'] ?? '-'); ?>
                                 </div>
                             </div>
 

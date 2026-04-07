@@ -1,6 +1,7 @@
 <?php require_once __DIR__ . '/session.php'; ?>
 <?php
 $currentPage = basename($_SERVER['PHP_SELF']);
+
 $isDataBarang = in_array($currentPage, [
   'data_barang.php',
   'tambah_varian.php',
@@ -14,6 +15,12 @@ $isStokMasuk = in_array($currentPage, [
   'stok_masuk.php',
   'riwayat_stok_masuk.php',
   'detail_stok_masuk.php'
+]);
+
+$isKasir = in_array($currentPage, [
+  'kasir.php',
+  'riwayat_kasir.php',
+  'detail_kasir.php'
 ]);
 
 ?>
@@ -82,16 +89,20 @@ $isStokMasuk = in_array($currentPage, [
     </a>
 
     <a class="nav-item <?= $currentPage === 'riwayat_stok_masuk.php' ? 'active' : ''; ?>"
-   href="<?= url('pages/riwayat_stok_masuk.php') ?>"
-   data-tooltip="Riwayat Stok Masuk">
-    <span class="nav-icon"><i class="fa-solid fa-clock-rotate-left"></i></span>
-    <span class="nav-text">Riwayat Stok Masuk</span>
-</a>
+      href="<?= url('pages/riwayat_stok_masuk.php') ?>" data-tooltip="Riwayat Stok Masuk">
+      <span class="nav-icon"><i class="fa-solid fa-clock-rotate-left"></i></span>
+      <span class="nav-text">Riwayat Stok Masuk</span>
+    </a>
 
-    <a class="nav-item" href="#" data-tooltip="Team">
+    <a class="nav-item <?= $currentPage === 'kasir.php' ? 'active' : ''; ?>" href="<?= url('pages/kasir.php') ?>" data-tooltip="Kasir">
       <span class="nav-icon"><i class="fa-solid fa-cart-arrow-down"></i></span>
       <span class="nav-text">Kasir</span>
     </a>
+
+    <a class="nav-item <?= $currentPage === 'riwayat_kasir.php' || $currentPage === 'detail_kasir.php' ? 'active' : ''; ?>" href="<?= url('pages/riwayat_kasir.php') ?>" data-tooltip="Riwayat Kasir">
+  <span class="nav-icon"><i class="fa-solid fa-receipt"></i></span>
+  <span class="nav-text">Riwayat Kasir</span>
+</a>
 
     <!-- <div class="nav-divider"></div>
       <span class="nav-label">Laporan</span>
