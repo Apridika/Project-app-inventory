@@ -7,7 +7,7 @@ $isDataBarang = in_array($currentPage, [
   'edit.php',
   'master_data.php',
   'tambah_master.php',
-  'edit_master.php'
+  'edit_master.php',
 ]);
 
 $isStokMasuk = in_array($currentPage, [
@@ -80,6 +80,13 @@ $isStokMasuk = in_array($currentPage, [
       <span class="nav-icon"><i class="fa-solid fa-dolly"></i></span>
       <span class="nav-text">Stok Masuk</span>
     </a>
+
+    <a class="nav-item <?= $currentPage === 'riwayat_stok_masuk.php' ? 'active' : ''; ?>"
+   href="<?= url('pages/riwayat_stok_masuk.php') ?>"
+   data-tooltip="Riwayat Stok Masuk">
+    <span class="nav-icon"><i class="fa-solid fa-clock-rotate-left"></i></span>
+    <span class="nav-text">Riwayat Stok Masuk</span>
+</a>
 
     <a class="nav-item" href="#" data-tooltip="Team">
       <span class="nav-icon"><i class="fa-solid fa-cart-arrow-down"></i></span>
