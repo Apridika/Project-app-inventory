@@ -202,5 +202,5 @@ $colors   = mysqli_query($conn, "SELECT * FROM colors ORDER BY id DESC");
         </div>
     </main>
 
-    <script src="../assets/app.js"></script>
+    <script src="<?= url('assets/app.js') ?>"></script>
 </div>

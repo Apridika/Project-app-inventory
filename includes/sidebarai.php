@@ -17,7 +17,7 @@ $isDataBarang = in_array($currentPage, [
     <div class="sidebar-header">
       <div class="logo-area">
         <div class="logo-circle">
-          <img src="/assets/logoyh1.jpeg" alt="Logo" style="width: 100%; height:100%; object-fit: cover;">
+          <img src="<?= url('assets/logoyh1.jpeg') ?>" alt="Logo" style="width: 100%; height:100%; object-fit: cover;">
         </div>
         <div class="logo-text">
           <span class="logo-name">Yudhistira</span>
@@ -34,7 +34,7 @@ $isDataBarang = in_array($currentPage, [
 
       <span class="nav-label">Main Menu</span>
 
-      <a class="nav-item <?= $currentPage === 'dashboard.php' ? 'active' : ''; ?>" href="/dashboard.php" data-tooltip="Dashboard">
+      <a class="nav-item <?= $currentPage === 'dashboard.php' ? 'active' : ''; ?>" href="<?= url('dashboard.php') ?>" data-tooltip="Dashboard">
         <span class="nav-icon"><i class="fa-solid fa-house"></i></span>
         <span class="nav-text">Dashboard</span>
       </a>
@@ -46,9 +46,9 @@ $isDataBarang = in_array($currentPage, [
       </div>
 
       <div class="dropdown-menu">
-        <a href="/pages/data_barang.php" class="dropdown-item <?= $currentPage === 'data_barang.php' || $currentPage === 'edit.php' ? 'active' : ''; ?>">List Produk</a>
-        <a href="/pages/master_data.php" class="dropdown-item <?= $currentPage === 'master_data.php' || $currentPage === 'tambah_master.php' || $currentPage === 'edit_master.php' ? 'active' : ''; ?>">Master Data</a>
-        <a href="/pages/tambah_varian.php" class="dropdown-item <?= $currentPage === 'tambah_varian.php' ? 'active' : ''; ?>">Tambah Varian</a>
+        <a href="<?= url('pages/data_barang.php') ?>" class="dropdown-item <?= $currentPage === 'data_barang.php' || $currentPage === 'edit.php' ? 'active' : ''; ?>">List Produk</a>
+        <a href="<?= url('pages/master_data.php') ?>" class="dropdown-item <?= $currentPage === 'master_data.php' || $currentPage === 'tambah_master.php' || $currentPage === 'edit_master.php' ? 'active' : ''; ?>">Master Data</a>
+        <a href="<?= url('pages/tambah_varian.php') ?>" class="dropdown-item <?= $currentPage === 'tambah_varian.php' ? 'active' : ''; ?>">Tambah Varian</a>
       </div>
 
       <!-- <a class="nav-item active" href="#" data-tooltip="Calendar">
@@ -101,7 +101,7 @@ $isDataBarang = in_array($currentPage, [
         </div>
       </a>
 
-      <a class="nav-item" href="../logout.php" data-tooltip="Logout" style="color: #f87171;">
+      <a class="nav-item" href="<?= url('logout.php') ?>" data-tooltip="Logout" style="color: #f87171;">
         <span class="nav-icon"><i class="fa-solid fa-right-from-bracket"></i></span>
         <span class="nav-text" style="color: #f87171;">Logout</span>
       </a>

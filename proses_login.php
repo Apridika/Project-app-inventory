@@ -1,13 +1,12 @@
 <?php
 require_once 'includes/koneksi.php';
-require_once 'includes/session.php';
+require_once 'includes/auth_check.php';
 
 $username = trim($_POST['username'] ?? '');
 $password = $_POST['password'] ?? '';
 
 if ($username === '' || $password === '') {
-    header("Location: login.php?error=Username dan password wajib diisi");
-    exit;
+    redirectTo('login.php?error=' . urlencode('Username dan password wajib diisi'));
 }
 
 $stmt = mysqli_prepare($conn, "SELECT id, name, username, password, role FROM users WHERE username = ?");
@@ -25,9 +24,7 @@ if ($user && password_verify($password, $user['password'])) {
     $_SESSION['username'] = $user['username'];
     $_SESSION['role'] = $user['role'];
 
-    header("Location: dashboard.php");
-    exit;
+    redirectTo('dashboard.php');
 } else {
-    header("Location: login.php?error=Username atau password salah");
-    exit;
+    redirectTo('login.php?error=' . urlencode('Username atau password salah'));
 }

@@ -7,7 +7,7 @@ if (session_status() === PHP_SESSION_NONE) {
 
 function redirectTo(string $path): void
 {
-    header('Location: ' . BASE_URL . '/' . ltrim($path, '/'));
+    header('Location: ' . url($path));
     exit;
 }
 

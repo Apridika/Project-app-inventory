@@ -27,7 +27,7 @@ include "includes/head.php"; ?>
                     </div>
             </main>
     </div>
-        <script src="assets/app.js"></script>
+        <script src="<?= url('assets/app.js') ?>"></script>
 </body>
 
 </html>

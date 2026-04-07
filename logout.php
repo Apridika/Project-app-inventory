@@ -1,9 +1,9 @@
 <?php
-require_once 'includes/session.php';
+
+require_once 'includes/auth_check.php';
 
 $_SESSION = [];
 session_unset();
 session_destroy();
 
-header("Location: login.php");
-exit;
+redirectTo('login.php');

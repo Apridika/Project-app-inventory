@@ -131,6 +131,6 @@ $result = mysqli_query($conn, $query);
 
     </main>
 
-    <script src="../assets/app.js"></script>
+    <script src="<?= url('assets/app.js') ?>"></script>
 </div>
 </html>
