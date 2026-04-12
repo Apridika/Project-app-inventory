@@ -21,11 +21,13 @@ if ($userId <= 0) {
 mysqli_begin_transaction($conn);
 
 try {
+    // Lock transaksi
     $stmtTransaction = mysqli_prepare($conn, "
         SELECT id, invoice_number, status
         FROM transactions
         WHERE id = ?
         LIMIT 1
+        FOR UPDATE
     ");
     mysqli_stmt_bind_param($stmtTransaction, "i", $transactionId);
     mysqli_stmt_execute($stmtTransaction);
@@ -38,6 +40,10 @@ try {
 
     if ($transaction['status'] === 'cancelled') {
         throw new Exception("Transaksi ini sudah dibatalkan sebelumnya.");
+    }
+
+    if ($transaction['status'] !== 'paid') {
+        throw new Exception("Hanya transaksi berstatus paid yang bisa dibatalkan.");
     }
 
     $stmtDetail = mysqli_prepare($conn, "
@@ -53,56 +59,62 @@ try {
         throw new Exception("Detail transaksi tidak ditemukan.");
     }
 
-    while ($detail = mysqli_fetch_assoc($detailResult)) {
-        $variantId = (int) $detail['variant_id'];
-        $qty = (int) $detail['qty'];
+    $stmtVariant = mysqli_prepare($conn, "
+        SELECT stock
+        FROM product_variants
+        WHERE id = ?
+        LIMIT 1
+        FOR UPDATE
+    ");
 
-        $stmtVariant = mysqli_prepare($conn, "
-            SELECT stock
-            FROM product_variants
-            WHERE id = ?
-            LIMIT 1
-        ");
+    $stmtUpdateStock = mysqli_prepare($conn, "
+        UPDATE product_variants
+        SET stock = ?
+        WHERE id = ?
+    ");
+
+    $stmtLog = mysqli_prepare($conn, "
+        INSERT INTO stock_logs (
+            variant_id,
+            qty,
+            type,
+            stock_before,
+            stock_after,
+            reference_type,
+            reference_id,
+            note,
+            created_by
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ");
+
+    while ($detail = mysqli_fetch_assoc($detailResult)) {
+        $variantId = (int) ($detail['variant_id'] ?? 0);
+        $qty = (int) ($detail['qty'] ?? 0);
+
+        if ($variantId <= 0 || $qty <= 0) {
+            continue;
+        }
+
         mysqli_stmt_bind_param($stmtVariant, "i", $variantId);
         mysqli_stmt_execute($stmtVariant);
         $variantResult = mysqli_stmt_get_result($stmtVariant);
         $variant = mysqli_fetch_assoc($variantResult);
 
         if (!$variant) {
-            throw new Exception("Varian barang tidak ditemukan.");
+            throw new Exception("Varian barang tidak ditemukan untuk item: " . ($detail['sku'] ?? $detail['product_name']));
         }
 
         $stockBefore = (int) $variant['stock'];
         $stockAfter = $stockBefore + $qty;
 
-        $stmtUpdateStock = mysqli_prepare($conn, "
-            UPDATE product_variants
-            SET stock = ?
-            WHERE id = ?
-        ");
         mysqli_stmt_bind_param($stmtUpdateStock, "ii", $stockAfter, $variantId);
-
         if (!mysqli_stmt_execute($stmtUpdateStock)) {
             throw new Exception("Gagal mengembalikan stok.");
         }
 
         $type = 'IN';
-        $referenceType = 'sale';
+        $referenceType = 'return';
         $note = 'Pembatalan transaksi kasir: ' . $transaction['invoice_number'];
-
-        $stmtLog = mysqli_prepare($conn, "
-            INSERT INTO stock_logs (
-                variant_id,
-                qty,
-                type,
-                stock_before,
-                stock_after,
-                reference_type,
-                reference_id,
-                note,
-                created_by
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-        ");
 
         mysqli_stmt_bind_param(
             $stmtLog,

@@ -18,16 +18,11 @@ $queryTransaction = "
         t.id,
         t.invoice_number,
         t.customer_name,
-        t.customer_phone,
         t.channel,
         t.status,
         t.payment_method,
         t.note,
-        t.subtotal_price,
-        t.discount_total,
         t.total_price,
-        t.paid_amount,
-        t.change_amount,
         t.created_at,
         u.name AS user_name
     FROM transactions t
@@ -109,52 +104,27 @@ $resultDetail = mysqli_stmt_get_result($stmtDetail);
 
                     <div class="form-group">
                         <label>Status</label>
-                        <div class="form-static"><?= htmlspecialchars($transaction['status']); ?></div>
+                        <div class="form-static"><?= htmlspecialchars(ucfirst($transaction['status'])); ?></div>
                     </div>
 
                     <div class="form-group">
                         <label>Metode Pembayaran</label>
-                        <div class="form-static"><?= htmlspecialchars($transaction['payment_method'] ?? '-'); ?></div>
+                        <div class="form-static"><?= htmlspecialchars(ucfirst($transaction['payment_method'] ?? '-')); ?></div>
                     </div>
 
                     <div class="form-group">
-                        <label>Channel</label>
-                        <div class="form-static"><?= htmlspecialchars($transaction['channel'] ?? '-'); ?></div>
+                        <label>Via</label>
+                        <div class="form-static"><?= htmlspecialchars(ucfirst($transaction['channel'] ?? '-')); ?></div>
                     </div>
 
                     <div class="form-group">
-                        <label>Customer</label>
-                        <div class="form-static"><?= htmlspecialchars($transaction['customer_name'] ?? '-'); ?></div>
-                    </div>
-
-                    <div class="form-group">
-                        <label>No HP Customer</label>
-                        <div class="form-static"><?= htmlspecialchars($transaction['customer_phone'] ?? '-'); ?></div>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Subtotal</label>
-                        <div class="form-static">Rp <?= number_format($transaction['subtotal_price']); ?></div>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Diskon</label>
-                        <div class="form-static">Rp <?= number_format($transaction['discount_total']); ?></div>
+                        <label>Nama Pembeli</label>
+                        <div class="form-static"><?= htmlspecialchars($transaction['customer_name'] ?: '-'); ?></div>
                     </div>
 
                     <div class="form-group">
                         <label>Total</label>
-                        <div class="form-static">Rp <?= number_format($transaction['total_price']); ?></div>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Bayar</label>
-                        <div class="form-static">Rp <?= number_format($transaction['paid_amount']); ?></div>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Kembalian</label>
-                        <div class="form-static">Rp <?= number_format($transaction['change_amount']); ?></div>
+                        <div class="form-static">Rp <?= number_format((int) $transaction['total_price']); ?></div>
                     </div>
 
                     <div class="form-group">
@@ -169,7 +139,9 @@ $resultDetail = mysqli_stmt_get_result($stmtDetail);
 
                     <div class="form-group" style="grid-column: 1 / -1;">
                         <label>Catatan</label>
-                        <div class="form-static"><?= nl2br(htmlspecialchars($transaction['note'] ?? '-')); ?></div>
+                        <div class="form-static">
+                            <?= !empty($transaction['note']) ? nl2br(htmlspecialchars($transaction['note'])) : '-'; ?>
+                        </div>
                     </div>
 
                 </div>
@@ -190,7 +162,7 @@ $resultDetail = mysqli_stmt_get_result($stmtDetail);
                     <tbody>
                         <?php
                         $no = 1;
-                        if (mysqli_num_rows($resultDetail) > 0):
+                        if ($resultDetail && mysqli_num_rows($resultDetail) > 0):
                             while ($row = mysqli_fetch_assoc($resultDetail)):
                         ?>
                         <tr>
@@ -206,10 +178,10 @@ $resultDetail = mysqli_stmt_get_result($stmtDetail);
                                 <br>
                                 <small>SKU: <?= htmlspecialchars($row['sku']); ?></small>
                             </td>
-                            <td><?= (int)$row['qty']; ?></td>
-                            <td>Rp <?= number_format($row['price']); ?></td>
-                            <td>Rp <?= number_format($row['discount']); ?></td>
-                            <td>Rp <?= number_format($row['subtotal']); ?></td>
+                            <td><?= (int) $row['qty']; ?></td>
+                            <td>Rp <?= number_format((int) $row['price']); ?></td>
+                            <td>Rp <?= number_format((int) $row['discount']); ?></td>
+                            <td>Rp <?= number_format((int) $row['subtotal']); ?></td>
                         </tr>
                         <?php
                             endwhile;
@@ -223,15 +195,15 @@ $resultDetail = mysqli_stmt_get_result($stmtDetail);
                 </table>
 
                 <div class="form-actions" style="padding: 20px;">
-    <?php if ($transaction['status'] === 'paid'): ?>
-        <form action="batalkan_kasir.php" method="POST" onsubmit="return confirm('Yakin ingin membatalkan transaksi ini? Stok akan dikembalikan.');">
-            <input type="hidden" name="transaction_id" value="<?= (int)$transaction['id']; ?>">
-            <button type="submit" class="btn-secondary">Batalkan Transaksi</button>
-        </form>
-    <?php endif; ?>
+                    <?php if ($transaction['status'] === 'paid'): ?>
+                        <form action="batalkan_kasir.php" method="POST" onsubmit="return confirm('Yakin ingin membatalkan transaksi ini? Stok akan dikembalikan.');">
+                            <input type="hidden" name="transaction_id" value="<?= (int) $transaction['id']; ?>">
+                            <button type="submit" class="btn-secondary">Batalkan Transaksi</button>
+                        </form>
+                    <?php endif; ?>
 
-    <a href="riwayat_kasir.php" class="btn-secondary">Kembali</a>
-</div>
+                    <a href="riwayat_kasir.php" class="btn-secondary">Kembali</a>
+                </div>
             </div>
 
         </div>

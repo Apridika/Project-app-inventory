@@ -27,7 +27,6 @@ ORDER BY p.name ASC
 ";
 
 $variants = mysqli_query($conn, $query);
-
 $transactionNumber = 'TRX-' . date('Ymd-His');
 ?>
 
@@ -48,19 +47,20 @@ $transactionNumber = 'TRX-' . date('Ymd-His');
 
                 <div class="page-header">
 
-                <?php if (isset($_GET['success'])): ?>
-    <div class="alert alert-success">
-        Transaksi kasir berhasil disimpan.
-    </div>
-<?php endif; ?>
+                <h2>Kasir</h2>
+                    <?php if (isset($_GET['success'])): ?>
+                    <div class="alert alert-success">
+                        Transaksi kasir berhasil disimpan.
+                    </div>
+                    <?php endif; ?>
 
-<?php if (isset($_GET['error'])): ?>
-    <div class="alert alert-error">
-        <?= htmlspecialchars($_GET['error']); ?>
-    </div>
-<?php endif; ?>
+                    <?php if (isset($_GET['error'])): ?>
+                    <div class="alert alert-error">
+                        <?= htmlspecialchars($_GET['error']); ?>
+                    </div>
+                    <?php endif; ?>
 
-                    <h2>Kasir</h2>
+                    
                 </div>
 
                 <form action="proses_kasir.php" method="POST">
@@ -71,7 +71,47 @@ $transactionNumber = 'TRX-' . date('Ymd-His');
 
                             <div class="form-group">
                                 <label>No Transaksi</label>
-                                <input type="text" name="transaction_number" value="<?= $transactionNumber ?>" readonly>
+                                <input type="text" name="transaction_number"
+                                    value="<?= htmlspecialchars($transactionNumber); ?>" readonly>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Nama Pembeli</label>
+                                <input type="text" name="customer_name" id="customer_name"
+                                    placeholder="Masukkan nama pembeli" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Dibeli Via</label>
+                                <select name="channel" id="channel" onchange="handleChannelChange()" required>
+                                    <option value="offline">Offline</option>
+                                    <option value="online">Online</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group" id="shopPlatformGroup" style="display: none;">
+                                <label>Shop / Platform</label>
+                                <select name="shop_platform" id="shop_platform" onchange="handleShopChange()">
+                                    <option value="">-- Pilih Shop --</option>
+                                    <option value="Shopee">Shopee</option>
+                                    <option value="WhatsApp">WhatsApp</option>
+                                    <option value="TikTok Shop">TikTok Shop</option>
+                                    <option value="Lainnya">Lainnya</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Metode Pembayaran</label>
+                                <select name="payment_method" id="payment_method" required>
+                                    <option value="cash">Cash</option>
+                                    <option value="transfer">Transfer</option>
+                                    <option value="shopeepay">ShopeePay</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group" style="grid-column: 1 / -1;">
+                                <label>Catatan</label>
+                                <textarea name="note" rows="3" placeholder="Catatan transaksi (opsional)"></textarea>
                             </div>
 
                         </div>
@@ -81,7 +121,6 @@ $transactionNumber = 'TRX-' . date('Ymd-His');
                     <div class="card">
 
                         <table class="product-table" id="kasirTable">
-
                             <thead>
                                 <tr>
                                     <th>Barang</th>
@@ -94,37 +133,30 @@ $transactionNumber = 'TRX-' . date('Ymd-His');
                             </thead>
 
                             <tbody id="tableBody">
-
                                 <tr>
-
-                                    <td>
-                                        <select name="variant_id[]" required onchange="updateRow(this)">
+                                    <td style="min-width: 320px;">
+                                        <select name="variant_id[]" class="item-select" required
+                                            onchange="updateRow(this)">
                                             <option value="">-- Pilih Barang --</option>
-
                                             <?php while ($v = mysqli_fetch_assoc($variants)): ?>
-
-                                            <option value="<?= $v['id'] ?>" data-stock="<?= $v['stock'] ?>"
-                                                data-price="<?= $v['price'] ?>">
-
-                                                <?= htmlspecialchars($v['product_name']) ?>
+                                            <option value="<?= (int) $v['id']; ?>"
+                                                data-stock="<?= (int) $v['stock']; ?>"
+                                                data-price="<?= (int) $v['price']; ?>">
+                                                <?= htmlspecialchars($v['product_name'] ?? '-'); ?>
                                                 |
-                                                <?= htmlspecialchars($v['type_name'] ?? '-') ?>
+                                                <?= htmlspecialchars($v['type_name'] ?? '-'); ?>
                                                 |
-                                                <?= htmlspecialchars($v['size_name'] ?? '-') ?>
+                                                <?= htmlspecialchars($v['size_name'] ?? '-'); ?>
                                                 |
-                                                <?= htmlspecialchars($v['color_name'] ?? '-') ?>
+                                                <?= htmlspecialchars($v['color_name'] ?? '-'); ?>
                                                 | SKU:
-                                                <?= htmlspecialchars($v['sku']) ?>
-
+                                                <?= htmlspecialchars($v['sku'] ?? '-'); ?>
                                             </option>
-
                                             <?php endwhile; ?>
-
                                         </select>
                                     </td>
 
                                     <td class="stock">0</td>
-
                                     <td class="price">0</td>
 
                                     <td>
@@ -138,11 +170,8 @@ $transactionNumber = 'TRX-' . date('Ymd-His');
                                             <i class="fa-solid fa-trash"></i>
                                         </button>
                                     </td>
-
                                 </tr>
-
                             </tbody>
-
                         </table>
 
                         <br>
@@ -153,25 +182,21 @@ $transactionNumber = 'TRX-' . date('Ymd-His');
 
                     </div>
 
-                    <div class="card form-card">
-
+                    <div class="card form-card" style="margin-top: 20px;">
                         <div class="form-group">
                             <label>Total</label>
                             <input type="text" id="grandTotal" readonly value="0">
                         </div>
 
                         <div class="form-actions">
-
                             <button type="submit" class="btn-secondary">
                                 Simpan Transaksi
                             </button>
 
-                            <a href="dashboard.php" class="btn-secondary">
+                            <a href="<?= url('dashboard.php') ?>" class="btn-secondary">
                                 Batal
                             </a>
-
                         </div>
-
                     </div>
 
                 </form>
@@ -182,87 +207,201 @@ $transactionNumber = 'TRX-' . date('Ymd-His');
 
     </div>
 
-    <script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
-        function updateRow(el) {
-
-            let row = el.closest("tr");
-
-            let select = row.querySelector("select");
-
-            let stock = select.options[select.selectedIndex]
-                .getAttribute("data-stock");
-
-            let price = select.options[select.selectedIndex]
-                .getAttribute("data-price");
-
-            row.querySelector(".stock").innerText = stock || 0;
-
-            row.querySelector(".price").innerText = price || 0;
-
-            let qty = row.querySelector("input").value;
-
-            let subtotal = qty * price;
-
-            row.querySelector(".subtotal").innerText = subtotal;
-
-            updateTotal();
-
+    <style>
+        .select2-container {
+            width: 100% !important;
         }
 
-        function updateTotal() {
+        .select2-container .select2-selection--single {
+            height: 42px !important;
+            border: 1px solid #ccc !important;
+            border-radius: 8px !important;
+            padding: 6px 10px !important;
+            display: flex !important;
+            align-items: center !important;
+            background: #fff !important;
+        }
 
-            let total = 0;
+        .select2-container .select2-selection__rendered {
+            line-height: 28px !important;
+            padding-left: 0 !important;
+            padding-right: 20px !important;
+        }
 
-            document.querySelectorAll(".subtotal")
-                .forEach(function (el) {
+        .select2-container .select2-selection__arrow {
+            height: 40px !important;
+        }
 
-                    total += parseInt(el.innerText) || 0;
+        .select2-dropdown {
+            border-radius: 8px !important;
+            overflow: hidden;
+        }
+    </style>
 
-                });
+    <script>
+        function formatRupiah(angka) {
+            return new Intl.NumberFormat('id-ID').format(angka || 0);
+        }
 
-            document.getElementById("grandTotal").value = total;
+        function initSelect2(target = '.item-select') {
+            $(target).select2({
+                placeholder: '-- Pilih Barang --',
+                allowClear: true,
+                width: '100%'
+            });
+        }
 
+        function updateRow(el) {
+            const row = el.closest("tr");
+            const select = row.querySelector("select[name='variant_id[]']");
+            const qtyInput = row.querySelector("input[name='qty[]']");
+
+            const selectedOption = select.options[select.selectedIndex];
+            const stock = selectedOption ? parseInt(selectedOption.getAttribute("data-stock")) || 0 : 0;
+            const price = selectedOption ? parseInt(selectedOption.getAttribute("data-price")) || 0 : 0;
+
+            let qty = parseInt(qtyInput.value) || 0;
+
+            if (qty < 1) {
+                qty = 1;
+                qtyInput.value = 1;
+            }
+
+            const subtotal = qty * price;
+
+            row.querySelector(".stock").innerText = stock;
+            row.querySelector(".price").innerText = formatRupiah(price);
+            row.querySelector(".subtotal").innerText = formatRupiah(subtotal);
+
+            updateGrandTotal();
+        }
+
+        function updateGrandTotal() {
+            let grandTotal = 0;
+
+            document.querySelectorAll("#tableBody tr").forEach(function (row) {
+                const qtyInput = row.querySelector("input[name='qty[]']");
+                const select = row.querySelector("select[name='variant_id[]']");
+                const selectedOption = select.options[select.selectedIndex];
+                const price = selectedOption ? parseInt(selectedOption.getAttribute("data-price")) || 0 : 0;
+                const qty = parseInt(qtyInput.value) || 0;
+
+                grandTotal += (qty * price);
+            });
+
+            document.getElementById("grandTotal").value = formatRupiah(grandTotal);
+        }
+
+        function resetSelect2Element(select) {
+            select.removeAttribute("data-select2-id");
+            select.classList.remove("select2-hidden-accessible");
+            select.removeAttribute("tabindex");
+            select.removeAttribute("aria-hidden");
+            select.style.display = "";
+
+            select.querySelectorAll("option").forEach(function (option) {
+                option.removeAttribute("data-select2-id");
+                option.selected = false;
+            });
         }
 
         function addRow() {
+            const tableBody = document.getElementById("tableBody");
+            const firstRow = tableBody.querySelector("tr");
+            const newRow = firstRow.cloneNode(true);
 
-            let table = document.getElementById("tableBody");
+            const clonedSelect2Container = newRow.querySelector(".select2");
+            if (clonedSelect2Container) {
+                clonedSelect2Container.remove();
+            }
 
-            let row = table.rows[0].cloneNode(true);
+            const select = newRow.querySelector("select[name='variant_id[]']");
+            const qtyInput = newRow.querySelector("input[name='qty[]']");
 
-            row.querySelector(".stock").innerText = 0;
+            resetSelect2Element(select);
 
-            row.querySelector(".price").innerText = 0;
+            select.selectedIndex = 0;
+            select.value = "";
+            qtyInput.value = 1;
 
-            row.querySelector(".subtotal").innerText = 0;
+            newRow.querySelector(".stock").innerText = "0";
+            newRow.querySelector(".price").innerText = "0";
+            newRow.querySelector(".subtotal").innerText = "0";
 
-            row.querySelector("select").selectedIndex = 0;
-
-            row.querySelector("input").value = 1;
-
-            table.appendChild(row);
-
+            tableBody.appendChild(newRow);
+            initSelect2(select);
+            updateGrandTotal();
         }
 
         function removeRow(btn) {
+            const tableBody = document.getElementById("tableBody");
 
-            let table = document.getElementById("tableBody");
+            if (tableBody.rows.length > 1) {
+                const row = btn.closest("tr");
+                const select = row.querySelector("select[name='variant_id[]']");
 
-            if (table.rows.length > 1) {
+                if ($(select).hasClass('select2-hidden-accessible')) {
+                    $(select).select2('destroy');
+                }
 
-                btn.closest("tr").remove();
-
-                updateTotal();
-
+                row.remove();
+                updateGrandTotal();
             }
-
         }
 
+        function handleChannelChange() {
+            const channel = document.getElementById("channel").value;
+            const shopGroup = document.getElementById("shopPlatformGroup");
+            const shopSelect = document.getElementById("shop_platform");
+            const paymentMethod = document.getElementById("payment_method");
+
+            if (channel === "online") {
+                shopGroup.style.display = "block";
+            } else {
+                shopGroup.style.display = "none";
+                shopSelect.value = "";
+                paymentMethod.value = "cash";
+                paymentMethod.disabled = false;
+            }
+        }
+
+        function handleShopChange() {
+            const shop = document.getElementById("shop_platform").value;
+            const paymentMethod = document.getElementById("payment_method");
+
+            if (shop && shop.toLowerCase() === "shopee") {
+                paymentMethod.value = "shopeepay";
+                paymentMethod.disabled = true;
+            } else {
+                paymentMethod.disabled = false;
+
+                if (paymentMethod.value === "shopeepay") {
+                    paymentMethod.value = "transfer";
+                }
+            }
+        }
+
+        $(document).ready(function () {
+            initSelect2();
+            handleChannelChange();
+            handleShopChange();
+            updateGrandTotal();
+
+            $(document).on('change', "select[name='variant_id[]']", function () {
+                updateRow(this);
+            });
+
+            $(document).on('input', "input[name='qty[]']", function () {
+                updateRow(this);
+            });
+        });
     </script>
 
     <script src="<?= url('assets/app.js') ?>"></script>
-
 </body>
 
 </html>
