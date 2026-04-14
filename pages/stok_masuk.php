@@ -6,9 +6,6 @@ require_once '../includes/koneksi.php';
 $title = "Stok Masuk";
 include '../includes/head.php';
 
-// ambil supplier aktif
-$suppliers = mysqli_query($conn, "SELECT id, name FROM suppliers WHERE is_active = 1 ORDER BY name ASC");
-
 // ambil varian aktif
 $variantsQuery = "
     SELECT 
@@ -29,7 +26,27 @@ $variantsQuery = "
 ";
 $variants = mysqli_query($conn, $variantsQuery);
 
-// nomor pembelian sederhana
+$variantList = [];
+while ($row = mysqli_fetch_assoc($variants)) {
+    $label = $row['product_name']
+        . ' | ' . ($row['type_name'] ?? '-')
+        . ' | ' . ($row['size_name'] ?? '-')
+        . ' | ' . ($row['color_name'] ?? '-')
+        . ' | SKU: ' . $row['sku']
+        . ' | Stok: ' . (int)$row['stock'];
+
+    $variantList[] = [
+        'id' => (int)$row['id'],
+        'label' => $label,
+        'product_name' => $row['product_name'],
+        'type_name' => $row['type_name'] ?? '-',
+        'size_name' => $row['size_name'] ?? '-',
+        'color_name' => $row['color_name'] ?? '-',
+        'sku' => $row['sku'],
+        'stock' => (int)$row['stock'],
+    ];
+}
+
 $purchaseNumber = 'PM-' . date('Ymd-His');
 ?>
 
@@ -44,12 +61,12 @@ $purchaseNumber = 'PM-' . date('Ymd-His');
         <?php include '../includes/header.php'; ?>
 
         <?php if (isset($_GET['success'])): ?>
-    <div class="alert-success">Stok masuk berhasil disimpan.</div>
-<?php endif; ?>
+            <div class="alert-success">Stok masuk berhasil disimpan.</div>
+        <?php endif; ?>
 
-<?php if (isset($_GET['error'])): ?>
-    <div class="alert-error"><?= htmlspecialchars($_GET['error']); ?></div>
-<?php endif; ?>
+        <?php if (isset($_GET['error'])): ?>
+            <div class="alert-error"><?= htmlspecialchars($_GET['error']); ?></div>
+        <?php endif; ?>
 
         <div class="content-wrap">
             <div class="page-header">
@@ -57,7 +74,7 @@ $purchaseNumber = 'PM-' . date('Ymd-His');
             </div>
 
             <div class="card form-card">
-                <form action="proses_stok_masuk.php" method="POST" class="form-modern">
+                <form action="proses_stok_masuk.php" method="POST" class="form-modern" id="stokMasukForm">
 
                     <div class="form-grid">
                         <div class="form-group">
@@ -66,47 +83,24 @@ $purchaseNumber = 'PM-' . date('Ymd-His');
                         </div>
 
                         <div class="form-group">
-                            <label>Supplier</label>
-                            <select name="supplier_id">
-                                <option value="">-- Pilih Supplier --</option>
-                                <?php while ($supplier = mysqli_fetch_assoc($suppliers)): ?>
-                                    <option value="<?= (int)$supplier['id']; ?>">
-                                        <?= htmlspecialchars($supplier['name']); ?>
-                                    </option>
-                                <?php endwhile; ?>
-                            </select>
+                            <label>Nama Supplier</label>
+                            <input type="text" name="supplier_name" placeholder="Masukkan nama supplier" required>
                         </div>
 
-                        <div class="form-group">
-                            <label>Varian Barang</label>
-                            <select name="variant_id" required>
-                                <option value="">-- Pilih Varian --</option>
-                                <?php while ($variant = mysqli_fetch_assoc($variants)): ?>
-                                    <option value="<?= (int)$variant['id']; ?>">
-                                        <?= htmlspecialchars($variant['product_name']); ?>
-                                        | <?= htmlspecialchars($variant['type_name'] ?? '-'); ?>
-                                        | <?= htmlspecialchars($variant['size_name'] ?? '-'); ?>
-                                        | <?= htmlspecialchars($variant['color_name'] ?? '-'); ?>
-                                        | SKU: <?= htmlspecialchars($variant['sku']); ?>
-                                        | Stok: <?= (int)$variant['stock']; ?>
-                                    </option>
-                                <?php endwhile; ?>
-                            </select>
-                        </div>
-
-                        <div class="form-group">
-                            <label>Qty Masuk</label>
-                            <input type="number" name="qty" min="1" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label>Harga Modal</label>
-                            <input type="number" name="cost_price" min="0" required>
-                        </div>
-
-                        <div class="form-group">
+                        <div class="form-group" style="grid-column: 1 / -1;">
                             <label>Catatan</label>
                             <textarea name="note" rows="3" placeholder="Catatan tambahan..."></textarea>
+                        </div>
+                    </div>
+
+                    <div class="multi-items-wrap">
+                        <div class="multi-items-header" style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin:18px 0 12px;">
+                            <h3 style="margin:0;">Daftar Barang Masuk</h3>
+                            <button type="button" class="btn-secondary" id="addItemBtn">+ Tambah Barang</button>
+                        </div>
+
+                        <div id="itemsContainer">
+                            
                         </div>
                     </div>
 
@@ -120,6 +114,127 @@ $purchaseNumber = 'PM-' . date('Ymd-His');
         </div>
     </main>
 </div>
+
+<script>
+const variantData = <?= json_encode($variantList, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES); ?>;
+const itemsContainer = document.getElementById('itemsContainer');
+const addItemBtn = document.getElementById('addItemBtn');
+
+function createItemRow() {
+    const row = document.createElement('div');
+    row.className = 'item-row';
+    row.style.border = '1px solid #ddd';
+    row.style.borderRadius = '10px';
+    row.style.padding = '14px';
+    row.style.marginBottom = '14px';
+    row.style.background = '#060505';
+    row.style.position = 'relative';
+
+    row.innerHTML = `
+        <button type="button" class="remove-item-btn" style="position:absolute;top:10px;right:10px;">Hapus</button>
+
+        <div class="form-group" style="margin-bottom:10px;">
+            <label>Cari Barang</label>
+            <input type="text" class="barang-search" placeholder="Ketik nama barang / SKU / warna..." autocomplete="off">
+            <div class="search-results" style="border:1px solid #ddd;border-top:none;display:none;max-height:200px;overflow-y:auto;background:#fff;position:relative;z-index:10;"></div>
+        </div>
+
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Barang Terpilih</label>
+                <input type="text" class="selected-label" placeholder="Belum ada barang dipilih" readonly>
+                <input type="hidden" name="variant_id[]" class="variant-id" required>
+            </div>
+
+            <div class="form-group">
+                <label>Qty Masuk</label>
+                <input type="number" name="qty[]" class="qty-input" min="1" required>
+            </div>
+        </div>
+    `;
+
+    const searchInput = row.querySelector('.barang-search');
+    const searchResults = row.querySelector('.search-results');
+    const selectedLabel = row.querySelector('.selected-label');
+    const variantIdInput = row.querySelector('.variant-id');
+    const removeBtn = row.querySelector('.remove-item-btn');
+
+    function renderResults(keyword = '') {
+        const q = keyword.toLowerCase().trim();
+
+        const filtered = variantData.filter(item => {
+            return item.label.toLowerCase().includes(q)
+                || item.product_name.toLowerCase().includes(q)
+                || item.sku.toLowerCase().includes(q)
+                || item.color_name.toLowerCase().includes(q);
+        });
+
+        searchResults.innerHTML = '';
+
+        if (filtered.length === 0) {
+            searchResults.innerHTML = `<div style="padding:10px;">Barang tidak ditemukan</div>`;
+            searchResults.style.display = 'block';
+            return;
+        }
+
+        filtered.forEach(item => {
+            const option = document.createElement('div');
+            option.style.padding = '10px';
+            option.style.cursor = 'pointer';
+            option.style.borderTop = '1px solid #eee';
+            option.textContent = item.label;
+
+            option.addEventListener('click', function () {
+                variantIdInput.value = item.id;
+                selectedLabel.value = item.label;
+                searchInput.value = item.product_name + ' / ' + item.sku;
+                searchResults.style.display = 'none';
+            });
+
+            searchResults.appendChild(option);
+        });
+
+        searchResults.style.display = 'block';
+    }
+
+    searchInput.addEventListener('focus', function () {
+        renderResults(this.value);
+    });
+
+    searchInput.addEventListener('input', function () {
+        renderResults(this.value);
+    });
+
+    document.addEventListener('click', function(e) {
+        if (!row.contains(e.target)) {
+            searchResults.style.display = 'none';
+        }
+    });
+
+    removeBtn.addEventListener('click', function () {
+        row.remove();
+        ensureAtLeastOneRow();
+    });
+
+    return row;
+}
+
+function addItemRow() {
+    itemsContainer.appendChild(createItemRow());
+}
+
+function ensureAtLeastOneRow() {
+    const rows = itemsContainer.querySelectorAll('.item-row');
+    if (rows.length === 0) {
+        addItemRow();
+    }
+}
+
+addItemBtn.addEventListener('click', addItemRow);
+
+// row pertama
+addItemRow();
+</script>
 
 <script src="<?= url('assets/app.js') ?>"></script>
 </body>

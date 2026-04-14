@@ -180,7 +180,7 @@ function getMonthNameIndo($monthNumber)
                         </select>
                     </div>
 
-                    <div class="filter-group" id="date_filter_group">
+                    <div style="color: #d1d5db;" class="filter-group" id="date_filter_group">
                         <label for="selected_date">Pilih Tanggal</label>
                         <input 
                             type="date" 

@@ -7,26 +7,25 @@ $title = "Riwayat Stok Masuk";
 include '../includes/head.php';
 
 $query = "
-SELECT 
-    p.id,
-    p.purchase_number,
-    p.created_at,
-    p.total_cost,
-    u.name AS user_name,
-    s.name AS supplier_name,
-    pd.qty,
-    pd.cost_price,
-    pd.subtotal,
-    pd.product_name,
-    pd.type_name,
-    pd.size_name,
-    pd.color_name,
-    pd.sku
-FROM purchases p
-LEFT JOIN purchase_details pd ON pd.purchase_id = p.id
-LEFT JOIN users u ON u.id = p.created_by
-LEFT JOIN suppliers s ON s.id = p.supplier_id
-ORDER BY p.created_at DESC
+    SELECT
+        p.id,
+        p.purchase_number,
+        p.supplier_name,
+        p.note,
+        p.status,
+        p.created_at,
+        COUNT(pd.id) AS total_item,
+        COALESCE(SUM(pd.qty), 0) AS total_qty
+    FROM purchases p
+    LEFT JOIN purchase_details pd ON pd.purchase_id = p.id
+    GROUP BY
+        p.id,
+        p.purchase_number,
+        p.supplier_name,
+        p.note,
+        p.status,
+        p.created_at
+    ORDER BY p.created_at DESC
 ";
 
 $result = mysqli_query($conn, $query);
@@ -34,58 +33,60 @@ $result = mysqli_query($conn, $query);
 
 <!DOCTYPE html>
 <html lang="id">
-
 <body>
 
-    <div class="layout">
+<div class="layout">
 
-        <?php include '../includes/sidebarai.php'; ?>
+    <?php include '../includes/sidebarai.php'; ?>
 
-        <main class="main">
+    <main class="main">
 
-            <?php include '../includes/header.php'; ?>
+        <?php include '../includes/header.php'; ?>
 
-            <div class="content-wrap">
+        <div class="content-wrap">
 
-                <div class="page-header">
-                    <h2>Riwayat Stok Masuk</h2>
-                </div>
+            <div class="page-header">
+                <h2>Riwayat Stok Masuk</h2>
+            </div>
 
-                <div class="card">
+            <div class="card">
 
-                    <table class="product-table">
+                <table class="product-table">
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Tanggal</th>
+                            <th>Supplier</th>
+                            <th>Total Item</th>
+                            <th>Total Qty</th>
+                            <th>Status</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
 
-                        <thead>
+                    <tbody>
+                        <?php
+                        $no = 1;
+
+                        if ($result && mysqli_num_rows($result) > 0):
+                            while ($row = mysqli_fetch_assoc($result)):
+                                
+                                $status = strtolower($row['status']);
+                                $badgeStyle = '';
+
+                                if ($status === 'received') {
+                                    $badgeStyle = 'background:#dcfce7;color:#166534;padding:6px 12px;border-radius:999px;font-size:12px;font-weight:600;display:inline-block;';
+                                } elseif ($status === 'cancelled') {
+                                    $badgeStyle = 'background:#fee2e2;color:#991b1b;padding:6px 12px;border-radius:999px;font-size:12px;font-weight:600;display:inline-block;';
+                                } else {
+                                    $badgeStyle = 'background:#e5e7eb;color:#374151;padding:6px 12px;border-radius:999px;font-size:12px;font-weight:600;display:inline-block;';
+                                }
+                        ?>
                             <tr>
-                                <th>No</th>
-                                <th>No Pembelian</th>
-                                <th>Supplier</th>
-                                <th>Barang</th>
-                                <th>Qty</th>
-                                <th>Harga</th>
-                                <th>Subtotal</th>
-                                <th>User</th>
-                                <th>Tanggal</th>
-                                <th>Aksi</th>
-                            </tr>
-                        </thead>
-
-                        <tbody>
-
-                            <?php
-$no = 1;
-
-if (mysqli_num_rows($result) > 0):
-    while ($row = mysqli_fetch_assoc($result)):
-?>
-
-                            <tr>
-                                <td>
-                                    <?= $no++; ?>
-                                </td>
+                                <td><?= $no++; ?></td>
 
                                 <td>
-                                    <?= htmlspecialchars($row['purchase_number']); ?>
+                                    <?= date('d-m-Y H:i', strtotime($row['created_at'])); ?>
                                 </td>
 
                                 <td>
@@ -93,76 +94,46 @@ if (mysqli_num_rows($result) > 0):
                                 </td>
 
                                 <td>
-                                    <?= htmlspecialchars($row['product_name']); ?>
-                                    |
-                                    <?= htmlspecialchars($row['type_name'] ?? '-'); ?>
-                                    |
-                                    <?= htmlspecialchars($row['size_name'] ?? '-'); ?>
-                                    |
-                                    <?= htmlspecialchars($row['color_name'] ?? '-'); ?>
-                                    <br>
-                                    <small>SKU:
-                                        <?= htmlspecialchars($row['sku']); ?>
-                                    </small>
+                                    <?= (int)$row['total_item']; ?> barang
                                 </td>
 
                                 <td>
-                                    <?= (int)$row['qty']; ?>
+                                    <?= (int)$row['total_qty']; ?>
                                 </td>
 
                                 <td>
-                                    Rp
-                                    <?= number_format($row['cost_price']); ?>
+                                    <span style="<?= $badgeStyle; ?>">
+                                        <?= htmlspecialchars(ucfirst($row['status'])); ?>
+                                    </span>
                                 </td>
 
                                 <td>
-                                    Rp
-                                    <?= number_format($row['subtotal']); ?>
+                                    <a href="detail_stok_masuk.php?id=<?= (int)$row['id']; ?>" class="btn-secondary">
+                                        Detail
+                                    </a>
                                 </td>
-
-                                <td>
-                                    <?= htmlspecialchars($row['user_name']); ?>
-                                </td>
-
-                                <td>
-                                    <?= date('d-m-Y H:i', strtotime($row['created_at'])); ?>
-                                </td>
-
-                                <td>
-    <a href="detail_stok_masuk.php?id=<?= (int)$row['id']; ?>" class="btn-secondary">
-        Detail
-    </a>
-</td>
-
                             </tr>
-
-                            <?php
-    endwhile;
-else:
-?>
-
+                        <?php
+                            endwhile;
+                        else:
+                        ?>
                             <tr>
-                                <td colspan="10" style="text-align:center;">
+                                <td colspan="7" style="text-align:center;">
                                     Belum ada data stok masuk.
                                 </td>
                             </tr>
-
-                            <?php endif; ?>
-
-                        </tbody>
-
-                    </table>
-
-                </div>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
 
             </div>
 
-        </main>
+        </div>
 
-    </div>
+    </main>
 
-    <script src="<?= url('assets/app.js') ?>"></script>
+</div>
 
+<script src="<?= url('assets/app.js') ?>"></script>
 </body>
-
 </html>

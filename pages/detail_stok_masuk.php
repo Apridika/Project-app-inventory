@@ -17,14 +17,12 @@ $queryPurchase = "
     SELECT
         p.id,
         p.purchase_number,
+        p.supplier_name,
         p.note,
-        p.total_cost,
         p.status,
         p.created_at,
-        s.name AS supplier_name,
         u.name AS user_name
     FROM purchases p
-    LEFT JOIN suppliers s ON s.id = p.supplier_id
     LEFT JOIN users u ON u.id = p.created_by
     WHERE p.id = ?
     LIMIT 1
@@ -44,8 +42,6 @@ if (!$purchase) {
 $queryDetail = "
     SELECT
         pd.qty,
-        pd.cost_price,
-        pd.subtotal,
         pd.product_name,
         pd.type_name,
         pd.size_name,
@@ -60,6 +56,19 @@ $stmtDetail = mysqli_prepare($conn, $queryDetail);
 mysqli_stmt_bind_param($stmtDetail, "i", $id);
 mysqli_stmt_execute($stmtDetail);
 $resultDetail = mysqli_stmt_get_result($stmtDetail);
+
+// status badge
+$status = strtolower($purchase['status'] ?? '');
+$statusLabel = ucfirst($status);
+$statusStyle = 'background:#e5e7eb;color:#374151;padding:6px 12px;border-radius:999px;font-size:12px;font-weight:600;display:inline-block;';
+
+if ($status === 'received') {
+    $statusLabel = 'Diterima';
+    $statusStyle = 'background:#dcfce7;color:#166534;padding:6px 12px;border-radius:999px;font-size:12px;font-weight:600;display:inline-block;';
+} elseif ($status === 'cancelled') {
+    $statusLabel = 'Dibatalkan';
+    $statusStyle = 'background:#fee2e2;color:#991b1b;padding:6px 12px;border-radius:999px;font-size:12px;font-weight:600;display:inline-block;';
+}
 ?>
 
 <!DOCTYPE html>
@@ -81,22 +90,22 @@ $resultDetail = mysqli_stmt_get_result($stmtDetail);
             </div>
 
             <?php if (isset($_GET['success'])): ?>
-    <div class="alert alert-success">
-        <?= htmlspecialchars($_GET['success']); ?>
-    </div>
-<?php endif; ?>
+                <div class="alert alert-success">
+                    <?= htmlspecialchars($_GET['success']); ?>
+                </div>
+            <?php endif; ?>
 
-<?php if (isset($_GET['error'])): ?>
-    <div class="alert alert-error">
-        <?= htmlspecialchars($_GET['error']); ?>
-    </div>
-<?php endif; ?>
+            <?php if (isset($_GET['error'])): ?>
+                <div class="alert alert-error">
+                    <?= htmlspecialchars($_GET['error']); ?>
+                </div>
+            <?php endif; ?>
 
             <div class="card form-card" style="margin-bottom: 20px;">
                 <div class="form-grid">
                     <div class="form-group">
-                        <label>No Pembelian</label>
-                        <div class="form-static"><?= htmlspecialchars($purchase['purchase_number']); ?></div>
+                        <label>Tanggal</label>
+                        <div class="form-static"><?= date('d-m-Y H:i', strtotime($purchase['created_at'])); ?></div>
                     </div>
 
                     <div class="form-group">
@@ -106,12 +115,16 @@ $resultDetail = mysqli_stmt_get_result($stmtDetail);
 
                     <div class="form-group">
                         <label>Status</label>
-                        <div class="form-static"><?= htmlspecialchars($purchase['status']); ?></div>
+                        <div class="form-static">
+                            <span style="<?= $statusStyle; ?>">
+                                <?= htmlspecialchars($statusLabel); ?>
+                            </span>
+                        </div>
                     </div>
 
                     <div class="form-group">
-                        <label>Total Cost</label>
-                        <div class="form-static">Rp <?= number_format($purchase['total_cost']); ?></div>
+                        <label>No Pembelian</label>
+                        <div class="form-static"><?= htmlspecialchars($purchase['purchase_number']); ?></div>
                     </div>
 
                     <div class="form-group">
@@ -119,14 +132,11 @@ $resultDetail = mysqli_stmt_get_result($stmtDetail);
                         <div class="form-static"><?= htmlspecialchars($purchase['user_name'] ?? '-'); ?></div>
                     </div>
 
-                    <div class="form-group">
-                        <label>Tanggal</label>
-                        <div class="form-static"><?= date('d-m-Y H:i', strtotime($purchase['created_at'])); ?></div>
-                    </div>
-
                     <div class="form-group" style="grid-column: 1 / -1;">
                         <label>Catatan</label>
-                        <div class="form-static"><?= nl2br(htmlspecialchars($purchase['note'] ?? '-')); ?></div>
+                        <div class="form-static">
+                            <?= !empty($purchase['note']) ? nl2br(htmlspecialchars($purchase['note'])) : '-'; ?>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -138,54 +148,59 @@ $resultDetail = mysqli_stmt_get_result($stmtDetail);
                             <th>No</th>
                             <th>Barang</th>
                             <th>Qty</th>
-                            <th>Harga Modal</th>
-                            <th>Subtotal</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php
                         $no = 1;
-                        if (mysqli_num_rows($resultDetail) > 0):
+                        $totalQty = 0;
+
+                        if ($resultDetail && mysqli_num_rows($resultDetail) > 0):
                             while ($row = mysqli_fetch_assoc($resultDetail)):
+                                $totalQty += (int)$row['qty'];
                         ?>
-                        <tr>
-                            <td><?= $no++; ?></td>
-                            <td>
-                                <?= htmlspecialchars($row['product_name']); ?>
-                                |
-                                <?= htmlspecialchars($row['type_name'] ?? '-'); ?>
-                                |
-                                <?= htmlspecialchars($row['size_name'] ?? '-'); ?>
-                                |
-                                <?= htmlspecialchars($row['color_name'] ?? '-'); ?>
-                                <br>
-                                <small>SKU: <?= htmlspecialchars($row['sku']); ?></small>
-                            </td>
-                            <td><?= (int)$row['qty']; ?></td>
-                            <td>Rp <?= number_format($row['cost_price']); ?></td>
-                            <td>Rp <?= number_format($row['subtotal']); ?></td>
-                        </tr>
+                            <tr>
+                                <td><?= $no++; ?></td>
+                                <td>
+                                    <?= htmlspecialchars($row['product_name'] ?? '-'); ?>
+                                    |
+                                    <?= htmlspecialchars($row['type_name'] ?? '-'); ?>
+                                    |
+                                    <?= htmlspecialchars($row['size_name'] ?? '-'); ?>
+                                    |
+                                    <?= htmlspecialchars($row['color_name'] ?? '-'); ?>
+                                    <br>
+                                    <small>SKU: <?= htmlspecialchars($row['sku'] ?? '-'); ?></small>
+                                </td>
+                                <td><?= (int)$row['qty']; ?></td>
+                            </tr>
                         <?php
                             endwhile;
+                        ?>
+                            <tr>
+                                <td colspan="2" style="text-align:right;font-weight:600;">Total Qty</td>
+                                <td style="font-weight:600;"><?= $totalQty; ?></td>
+                            </tr>
+                        <?php
                         else:
                         ?>
-                        <tr>
-                            <td colspan="5" style="text-align:center;">Tidak ada detail item.</td>
-                        </tr>
+                            <tr>
+                                <td colspan="3" style="text-align:center;">Tidak ada detail item.</td>
+                            </tr>
                         <?php endif; ?>
                     </tbody>
                 </table>
 
                 <div class="form-actions" style="padding: 20px;">
-    <?php if ($purchase['status'] === 'received'): ?>
-        <form action="batalkan_stok_masuk.php" method="POST" onsubmit="return confirm('Yakin ingin membatalkan stok masuk ini? Stok akan dikurangi kembali.');">
-            <input type="hidden" name="purchase_id" value="<?= (int)$purchase['id']; ?>">
-            <button type="submit" class="btn-secondary">Batalkan Transaksi</button>
-        </form>
-    <?php endif; ?>
+                    <?php if (($purchase['status'] ?? '') === 'received'): ?>
+                        <form action="batalkan_stok_masuk.php" method="POST" onsubmit="return confirm('Yakin ingin membatalkan stok masuk ini? Stok akan dikurangi kembali.');">
+                            <input type="hidden" name="purchase_id" value="<?= (int)$purchase['id']; ?>">
+                            <button type="submit" class="btn-secondary">Batalkan Transaksi</button>
+                        </form>
+                    <?php endif; ?>
 
-    <a href="riwayat_stok_masuk.php" class="btn-secondary">Kembali</a>
-</div>
+                    <a href="riwayat_stok_masuk.php" class="btn-secondary">Kembali</a>
+                </div>
             </div>
 
         </div>

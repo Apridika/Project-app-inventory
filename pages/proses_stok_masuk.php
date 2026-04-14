@@ -9,27 +9,23 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 $purchaseNumber = trim($_POST['purchase_number'] ?? '');
-$supplierId     = !empty($_POST['supplier_id']) ? (int)$_POST['supplier_id'] : null;
-$variantId      = (int)($_POST['variant_id'] ?? 0);
-$qty            = (int)($_POST['qty'] ?? 0);
-$costPrice      = (int)($_POST['cost_price'] ?? -1);
+$supplierName   = trim($_POST['supplier_name'] ?? '');
 $note           = trim($_POST['note'] ?? '');
-$createdBy      = (int)($_SESSION['user_id'] ?? 0);
+$variantIds     = $_POST['variant_id'] ?? [];
+$qtys           = $_POST['qty'] ?? [];
+
+$createdBy = (int)($_SESSION['user_id'] ?? 0);
 
 if ($purchaseNumber === '') {
     die("Nomor pembelian wajib ada.");
 }
 
-if ($variantId <= 0) {
-    die("Varian barang wajib dipilih.");
+if ($supplierName === '') {
+    die("Nama supplier wajib diisi.");
 }
 
-if ($qty <= 0) {
-    die("Qty masuk harus lebih dari 0.");
-}
-
-if ($costPrice < 0) {
-    die("Harga modal tidak valid.");
+if (!is_array($variantIds) || count($variantIds) === 0) {
+    die("Minimal pilih 1 barang.");
 }
 
 if ($createdBy <= 0) {
@@ -39,169 +35,197 @@ if ($createdBy <= 0) {
 mysqli_begin_transaction($conn);
 
 try {
-    // Ambil data varian
-    $variantQuery = "
-        SELECT 
-            pv.id,
-            pv.product_id,
-            pv.type_id,
-            pv.size_id,
-            pv.color_id,
-            pv.sku,
-            pv.stock,
-            p.name AS product_name,
-            t.name AS type_name,
-            s.name AS size_name,
-            c.name AS color_name
-        FROM product_variants pv
-        LEFT JOIN products p ON pv.product_id = p.id
-        LEFT JOIN types t ON pv.type_id = t.id
-        LEFT JOIN sizes s ON pv.size_id = s.id
-        LEFT JOIN colors c ON pv.color_id = c.id
-        WHERE pv.id = ?
-        LIMIT 1
-    ";
 
-    $stmtVariant = mysqli_prepare($conn, $variantQuery);
-    mysqli_stmt_bind_param($stmtVariant, "i", $variantId);
-    mysqli_stmt_execute($stmtVariant);
-    $variantResult = mysqli_stmt_get_result($stmtVariant);
-    $variant = mysqli_fetch_assoc($variantResult);
+    /*
+    =========================
+    1. SIMPAN PURCHASE
+    =========================
+    */
 
-    if (!$variant) {
-        throw new Exception("Data varian tidak ditemukan.");
-    }
-
-    $stockBefore = (int)$variant['stock'];
-    $stockAfter  = $stockBefore + $qty;
-    $subtotal    = $qty * $costPrice;
-
-    // 1. Simpan ke purchases
     $status = 'received';
+
     $stmtPurchase = mysqli_prepare($conn, "
         INSERT INTO purchases (
             purchase_number,
-            supplier_id,
+            supplier_name,
             note,
-            total_cost,
             status,
             created_by
-        ) VALUES (?, ?, ?, ?, ?, ?)
+        ) VALUES (?, ?, ?, ?, ?)
     ");
 
     mysqli_stmt_bind_param(
         $stmtPurchase,
-        "sisisi",
+        "ssssi",
         $purchaseNumber,
-        $supplierId,
+        $supplierName,
         $note,
-        $subtotal,
         $status,
         $createdBy
     );
 
-    if (!mysqli_stmt_execute($stmtPurchase)) {
-        throw new Exception("Gagal menyimpan data pembelian.");
-    }
+    mysqli_stmt_execute($stmtPurchase);
 
     $purchaseId = mysqli_insert_id($conn);
 
-    // 2. Simpan ke purchase_details
-    $productName = $variant['product_name'];
-    $typeName    = $variant['type_name'];
-    $sizeName    = $variant['size_name'];
-    $colorName   = $variant['color_name'];
-    $sku         = $variant['sku'];
+    /*
+    =========================
+    LOOP ITEM
+    =========================
+    */
 
-    $stmtDetail = mysqli_prepare($conn, "
-        INSERT INTO purchase_details (
-            purchase_id,
-            variant_id,
-            qty,
-            cost_price,
-            subtotal,
-            product_name,
-            type_name,
-            size_name,
-            color_name,
-            sku
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    ");
+    for ($i = 0; $i < count($variantIds); $i++) {
 
-    mysqli_stmt_bind_param(
-        $stmtDetail,
-        "iiiiisssss",
-        $purchaseId,
-        $variantId,
-        $qty,
-        $costPrice,
-        $subtotal,
-        $productName,
-        $typeName,
-        $sizeName,
-        $colorName,
-        $sku
-    );
+        $variantId = (int)($variantIds[$i] ?? 0);
+        $qty       = (int)($qtys[$i] ?? 0);
 
-    if (!mysqli_stmt_execute($stmtDetail)) {
-        throw new Exception("Gagal menyimpan detail pembelian.");
-    }
+        if ($variantId <= 0 || $qty <= 0) {
+            continue;
+        }
 
-    // 3. Update stok product_variants
-    $stmtUpdateStock = mysqli_prepare($conn, "
-        UPDATE product_variants
-        SET stock = ?
-        WHERE id = ?
-    ");
+        /*
+        =========================
+        AMBIL DATA VARIAN
+        =========================
+        */
 
-    mysqli_stmt_bind_param($stmtUpdateStock, "ii", $stockAfter, $variantId);
+        $stmtVariant = mysqli_prepare($conn, "
+            SELECT 
+                pv.stock,
+                pv.sku,
+                p.name AS product_name,
+                t.name AS type_name,
+                s.name AS size_name,
+                c.name AS color_name
+            FROM product_variants pv
+            LEFT JOIN products p ON pv.product_id = p.id
+            LEFT JOIN types t ON pv.type_id = t.id
+            LEFT JOIN sizes s ON pv.size_id = s.id
+            LEFT JOIN colors c ON pv.color_id = c.id
+            WHERE pv.id = ?
+            LIMIT 1
+        ");
 
-    if (!mysqli_stmt_execute($stmtUpdateStock)) {
-        throw new Exception("Gagal mengupdate stok barang.");
-    }
+        mysqli_stmt_bind_param(
+            $stmtVariant,
+            "i",
+            $variantId
+        );
 
-    // 4. Simpan ke stock_logs
-    $type = 'IN';
-    $referenceType = 'purchase';
+        mysqli_stmt_execute($stmtVariant);
 
-    $stmtStockLog = mysqli_prepare($conn, "
-        INSERT INTO stock_logs (
-            variant_id,
-            qty,
-            type,
-            stock_before,
-            stock_after,
-            reference_type,
-            reference_id,
-            note,
-            created_by
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-    ");
+        $result = mysqli_stmt_get_result($stmtVariant);
 
-    mysqli_stmt_bind_param(
-        $stmtStockLog,
-        "iisissisi",
-        $variantId,
-        $qty,
-        $type,
-        $stockBefore,
-        $stockAfter,
-        $referenceType,
-        $purchaseId,
-        $note,
-        $createdBy
-    );
+        $variant = mysqli_fetch_assoc($result);
 
-    if (!mysqli_stmt_execute($stmtStockLog)) {
-        throw new Exception("Gagal menyimpan log stok.");
+        if (!$variant) {
+            throw new Exception("Varian tidak ditemukan.");
+        }
+
+        $stockBefore = (int)$variant['stock'];
+        $stockAfter  = $stockBefore + $qty;
+
+        /*
+        =========================
+        UPDATE STOK
+        =========================
+        */
+
+        $stmtUpdateStock = mysqli_prepare($conn, "
+            UPDATE product_variants
+            SET stock = ?
+            WHERE id = ?
+        ");
+
+        mysqli_stmt_bind_param(
+            $stmtUpdateStock,
+            "ii",
+            $stockAfter,
+            $variantId
+        );
+
+        mysqli_stmt_execute($stmtUpdateStock);
+
+        /*
+        =========================
+        SIMPAN DETAIL
+        =========================
+        */
+
+        $stmtDetail = mysqli_prepare($conn, "
+            INSERT INTO purchase_details (
+                purchase_id,
+                variant_id,
+                qty,
+                product_name,
+                type_name,
+                size_name,
+                color_name,
+                sku
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        ");
+
+        mysqli_stmt_bind_param(
+            $stmtDetail,
+            "iiisssss",
+            $purchaseId,
+            $variantId,
+            $qty,
+            $variant['product_name'],
+            $variant['type_name'],
+            $variant['size_name'],
+            $variant['color_name'],
+            $variant['sku']
+        );
+
+        mysqli_stmt_execute($stmtDetail);
+
+        /*
+        =========================
+        SIMPAN LOG STOK
+        =========================
+        */
+
+        $logNote = "Stok masuk: " . $purchaseNumber;
+
+        $stmtLog = mysqli_prepare($conn, "
+            INSERT INTO stock_logs (
+                variant_id,
+                qty,
+                type,
+                stock_before,
+                stock_after,
+                reference_type,
+                reference_id,
+                note,
+                created_by
+            ) VALUES (?, ?, 'IN', ?, ?, 'purchase', ?, ?, ?)
+        ");
+
+        mysqli_stmt_bind_param(
+            $stmtLog,
+            "iiiiisi",
+            $variantId,
+            $qty,
+            $stockBefore,
+            $stockAfter,
+            $purchaseId,
+            $logNote,
+            $createdBy
+        );
+
+        mysqli_stmt_execute($stmtLog);
     }
 
     mysqli_commit($conn);
 
-    redirectTo('pages/stok_masuk.php?success=1');
+    header("Location: stok_masuk.php?success=1");
     exit;
 
-} catch (Exception $e) {
+} catch (Throwable $e) {
+
     mysqli_rollback($conn);
-    redirectTo('pages/stok_masuk.php?error=' . urlencode($e->getMessage()));
+
+    header("Location: stok_masuk.php?error=" . urlencode($e->getMessage()));
+    exit;
 }
