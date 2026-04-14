@@ -48,6 +48,8 @@ $transactionNumber = 'TRX-' . date('Ymd-His');
                 <div class="page-header">
 
                 <h2>Kasir</h2>
+                
+                <!-- notifikasi -->
                     <?php if (isset($_GET['success'])): ?>
                     <div class="alert alert-success">
                         Transaksi kasir berhasil disimpan.
