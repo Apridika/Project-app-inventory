@@ -1,5 +1,6 @@
 <?php
 require_once '../includes/auth_check.php';
+requireRole(['admin', 'owner', 'kasir']);
 requireLogin();
 require_once '../includes/koneksi.php';
 

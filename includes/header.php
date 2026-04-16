@@ -1,7 +1,7 @@
 <?php require_once __DIR__ . '/session.php'; ?>
 <div class="topbar">
   <div class="topbar-left">
-    <h1>Dashboard</h1>
+    <h1>Selamat Datang</h1>
     <p>Welcome back, <?= htmlspecialchars($_SESSION['user_name'] ?? 'User'); ?>.</p>
   </div>
 

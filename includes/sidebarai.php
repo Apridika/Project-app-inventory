@@ -1,3 +1,7 @@
+<?php
+$role = $_SESSION['role'] ?? '';
+?>
+
 <?php require_once __DIR__ . '/session.php'; ?>
 <?php
 $currentPage = basename($_SERVER['PHP_SELF']);
@@ -38,7 +42,7 @@ $isKasir = in_array($currentPage, [
       </div>
       <div class="logo-text">
         <span class="logo-name">Yudhistira</span>
-        <span class="logo-tagline">Handmade</span>
+        <span class="logo-tagline">Crafstore</span>
       </div>
     </div>
     <button class="collapse-btn" id="collapseBtn" title="Collapse sidebar">
@@ -56,7 +60,16 @@ $isKasir = in_array($currentPage, [
       <span class="nav-icon"><i class="fa-solid fa-house"></i></span>
       <span class="nav-text">Dashboard</span>
     </a>
+<?php if (in_array($role, ['kasir'], true)): ?>
+    <a class="nav-item <?= $currentPage === 'data_barang.php' || $currentPage === 'edit.php' ? 'active' : ''; ?>" href="<?= url('pages/data_barang.php') ?>"
+      data-tooltip="List Produk">
+      <span class="nav-icon"><i class="fa-solid fa-box"></i></span>
+      <span class="nav-text">List Produk</span>
+    </a>
+    <?php endif; ?>
 
+
+    <?php if (in_array($role, ['admin', 'owner'], true)): ?>
     <div class="nav-item dropdown  <?= $isDataBarang ? 'active open' : ''; ?>" data-tooltip="Data Barang">
       <span class="nav-icon"><i class="fa-solid fa-box"></i></span>
       <span class="nav-text">Data Barang</span>
@@ -85,6 +98,8 @@ $isKasir = in_array($currentPage, [
       <span class="nav-icon"><i class="fa-solid fa-clock-rotate-left"></i></span>
       <span class="nav-text">Riwayat Stok Masuk</span>
     </a>
+    <?php endif; ?>
+
 
     <a class="nav-item <?= $currentPage === 'kasir.php' ? 'active' : ''; ?>" href="<?= url('pages/kasir.php') ?>" data-tooltip="Kasir">
       <span class="nav-icon"><i class="fa-solid fa-cart-arrow-down"></i></span>
@@ -96,11 +111,11 @@ $isKasir = in_array($currentPage, [
   <span class="nav-text">Riwayat Kasir</span>
 </a>
 
-    <a class="nav-item" href="#" data-tooltip="Notifications">
+    <!-- <a class="nav-item" href="#" data-tooltip="Notifications">
       <span class="nav-icon"><i class="fa-solid fa-circle-user"></i></span>
       <span class="nav-text">Data User</span>
       <span class="nav-badge">4</span>
-    </a>
+    </a> -->
 
     <!-- <div class="nav-divider"></div>
       <span class="nav-label">Laporan</span>
