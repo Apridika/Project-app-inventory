@@ -1,6 +1,6 @@
 <?php
 require_once '../includes/auth_check.php';
-requireLogin();
+requireRole(['admin', 'owner', 'kasir']);
 require_once '../includes/koneksi.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -18,18 +18,16 @@ $paymentMethod = trim($_POST['payment_method'] ?? 'cash');
 $note          = trim($_POST['note'] ?? '');
 $shopPlatform  = trim($_POST['shop_platform'] ?? '');
 
-if ($customerName === '') {
-    redirectTo(
-        'pages/kasir.php?error=' . urlencode('Nama pembeli wajib diisi.')
-    );
-}
-
 if ($invoiceNumber === '') {
     redirectTo('pages/kasir.php?error=' . urlencode('Nomor transaksi wajib ada.'));
 }
 
 if ($createdBy <= 0) {
     redirectTo('pages/kasir.php?error=' . urlencode('Session user tidak valid.'));
+}
+
+if ($customerName === '') {
+    redirectTo('pages/kasir.php?error=' . urlencode('Nama pembeli wajib diisi.'));
 }
 
 if (!is_array($variantIds) || !is_array($qtys) || count($variantIds) === 0) {
@@ -47,16 +45,11 @@ if (!in_array($paymentMethod, $allowedPayments, true)) {
     $paymentMethod = 'cash';
 }
 
-// Opsional: kalau online + Shopee, simpan channel sebagai shopee agar lebih rapi
 if ($channel === 'online' && strtolower($shopPlatform) === 'shopee') {
     $channel = 'shopee';
     $paymentMethod = 'shopeepay';
 }
 
-// customer_name kosong -> simpan NULL
-$customerName = ($customerName !== '') ? $customerName : null;
-
-// tambahkan info platform ke note jika ada
 if ($shopPlatform !== '') {
     $platformNote = 'Platform: ' . $shopPlatform;
     $note = ($note !== '') ? ($platformNote . ' | ' . $note) : $platformNote;
@@ -65,14 +58,14 @@ if ($shopPlatform !== '') {
 mysqli_begin_transaction($conn);
 
 try {
-    // 1) Gabungkan item dengan variant yang sama
+    // gabungkan qty jika barang yang sama dipilih lebih dari sekali
     $groupedQty = [];
 
     for ($i = 0; $i < count($variantIds); $i++) {
         $variantId = (int) ($variantIds[$i] ?? 0);
-        $qty       = (int) ($qtys[$i] ?? 0);
+        $qtyRaw    = (float) ($qtys[$i] ?? 0);
 
-        if ($variantId <= 0 || $qty <= 0) {
+        if ($variantId <= 0 || $qtyRaw <= 0) {
             continue;
         }
 
@@ -80,14 +73,13 @@ try {
             $groupedQty[$variantId] = 0;
         }
 
-        $groupedQty[$variantId] += $qty;
+        $groupedQty[$variantId] += $qtyRaw;
     }
 
     if (count($groupedQty) === 0) {
         throw new Exception('Tidak ada item transaksi yang valid.');
     }
 
-    // 2) Ambil data varian + lock stok
     $items = [];
     $totalPrice = 0;
 
@@ -96,6 +88,7 @@ try {
             pv.id,
             pv.price,
             pv.stock,
+            pv.unit,
             pv.sku,
             p.name AS product_name,
             t.name AS type_name,
@@ -111,6 +104,10 @@ try {
         FOR UPDATE
     ");
 
+    if (!$stmtVariant) {
+        throw new Exception('Gagal menyiapkan query varian: ' . mysqli_error($conn));
+    }
+
     foreach ($groupedQty as $variantId => $qty) {
         mysqli_stmt_bind_param($stmtVariant, "i", $variantId);
         mysqli_stmt_execute($stmtVariant);
@@ -121,15 +118,31 @@ try {
             throw new Exception("Varian barang tidak ditemukan. ID: " . $variantId);
         }
 
-        $stockBefore = (int) $variant['stock'];
+        $unit = $variant['unit'] ?? 'pcs';
+
+        // meter boleh desimal, selain meter dibulatkan
+        if ($unit !== 'meter') {
+            $qty = max(1, round($qty));
+        } else {
+            $qty = round($qty, 2);
+        }
+
+        if ($qty <= 0) {
+            continue;
+        }
+
+        $stockBefore = (float) $variant['stock'];
 
         if ($qty > $stockBefore) {
-            throw new Exception("Stok tidak cukup untuk SKU " . $variant['sku'] . ". Stok tersedia: " . $stockBefore);
+            throw new Exception(
+                "Stok tidak cukup untuk SKU " . $variant['sku'] .
+                ". Stok tersedia: " . number_format($stockBefore, 2, '.', '')
+            );
         }
 
         $price      = (int) $variant['price'];
         $discount   = 0;
-        $subtotal   = ($price - $discount) * $qty;
+        $subtotal   = $price * $qty;
         $stockAfter = $stockBefore - $qty;
 
         $items[] = [
@@ -145,12 +158,16 @@ try {
             'type_name'     => $variant['type_name'],
             'size_name'     => $variant['size_name'],
             'color_name'    => $variant['color_name'],
+            'unit'          => $unit,
         ];
 
         $totalPrice += $subtotal;
     }
 
-    // 3) Simpan transaksi
+    if (count($items) === 0) {
+        throw new Exception("Tidak ada item transaksi yang valid.");
+    }
+
     $status = 'paid';
 
     $stmtTransaction = mysqli_prepare($conn, "
@@ -165,6 +182,10 @@ try {
             created_by
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     ");
+
+    if (!$stmtTransaction) {
+        throw new Exception('Gagal menyiapkan query transaksi: ' . mysqli_error($conn));
+    }
 
     mysqli_stmt_bind_param(
         $stmtTransaction,
@@ -185,7 +206,6 @@ try {
 
     $transactionId = mysqli_insert_id($conn);
 
-    // 4) Simpan detail + update stok + log stok
     $stmtDetail = mysqli_prepare($conn, "
         INSERT INTO transaction_details (
             transaction_id,
@@ -203,11 +223,19 @@ try {
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     ");
 
+    if (!$stmtDetail) {
+        throw new Exception('Gagal menyiapkan query detail transaksi: ' . mysqli_error($conn));
+    }
+
     $stmtUpdateStock = mysqli_prepare($conn, "
         UPDATE product_variants
         SET stock = ?
         WHERE id = ?
     ");
+
+    if (!$stmtUpdateStock) {
+        throw new Exception('Gagal menyiapkan query update stok: ' . mysqli_error($conn));
+    }
 
     $stmtLog = mysqli_prepare($conn, "
         INSERT INTO stock_logs (
@@ -223,12 +251,16 @@ try {
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     ");
 
+    if (!$stmtLog) {
+        throw new Exception('Gagal menyiapkan query log stok: ' . mysqli_error($conn));
+    }
+
     foreach ($items as $item) {
         $productSnapshot = null;
 
         mysqli_stmt_bind_param(
             $stmtDetail,
-            "iiiiiissssss",
+            "iidiiissssss",
             $transactionId,
             $item['variant_id'],
             $item['qty'],
@@ -249,7 +281,7 @@ try {
 
         mysqli_stmt_bind_param(
             $stmtUpdateStock,
-            "ii",
+            "di",
             $item['stock_after'],
             $item['variant_id']
         );
@@ -264,7 +296,7 @@ try {
 
         mysqli_stmt_bind_param(
             $stmtLog,
-            "iisissisi",
+            "idsddsisi",
             $item['variant_id'],
             $item['qty'],
             $type,

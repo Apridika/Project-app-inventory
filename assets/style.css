@@ -968,3 +968,9 @@ select option {
     color: #fff;
     display: inline-block;
 }
+
+.dashboard-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+} 

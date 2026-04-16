@@ -9,6 +9,12 @@ include '../includes/head.php';
 
 $variantId = isset($_GET['variant_id']) ? (int) $_GET['variant_id'] : 0;
 
+$keyword = isset($_GET['keyword']) ? $_GET['keyword'] : '';
+$filter = isset($_GET['filter']) ? $_GET['filter'] : '';
+
+$keyword = mysqli_real_escape_string($conn, $keyword);
+$filter = mysqli_real_escape_string($conn, $filter);
+
 // query dropdown barang
 $queryOptions = "
     SELECT 
@@ -29,21 +35,34 @@ $resultOptions = mysqli_query($conn, $queryOptions);
 
 // query tabel data barang
 $query = "
-    SELECT 
-        pv.id,
-        p.name AS product_name,
-        t.name AS type,
-        s.name AS size,
-        c.name AS color,
-        pv.sku,
-        pv.price,
-        pv.stock
-    FROM product_variants pv
-    LEFT JOIN products p ON pv.product_id = p.id
-    LEFT JOIN types t ON pv.type_id = t.id
-    LEFT JOIN sizes s ON pv.size_id = s.id
-    LEFT JOIN colors c ON pv.color_id = c.id
+SELECT 
+    pv.id,
+    p.name AS product_name,
+    t.name AS type,
+    s.name AS size,
+    c.name AS color,
+    pv.sku,
+    pv.price,
+    pv.stock,
+    pv.min_stock,
+    pv.unit
+FROM product_variants pv
+LEFT JOIN products p ON pv.product_id = p.id
+LEFT JOIN types t ON pv.type_id = t.id
+LEFT JOIN sizes s ON pv.size_id = s.id
+LEFT JOIN colors c ON pv.color_id = c.id
+WHERE 1=1
 ";
+
+// Filter stok menipis
+if ($filter === 'menipis') {
+    $query .= " AND pv.stock > 0 AND pv.stock <= pv.min_stock ";
+}
+
+// Filter stok habis
+if ($filter === 'habis') {
+    $query .= " AND pv.stock <= 0 ";
+}
 
 if ($variantId > 0) {
     $query .= " WHERE pv.id = $variantId ";
@@ -144,8 +163,11 @@ $result = mysqli_query($conn, $query);
                                     <?= 'Rp ' . number_format((int) $row['price'], 0, ',', '.'); ?>
                                 </td>
                                 <td>
-                                    <?= (int) $row['stock']; ?>
-                                </td>
+    <?php
+    $stockFormatted = rtrim(rtrim(number_format((float) $row['stock'], 2, '.', ''), '0'), '.');
+    echo htmlspecialchars($stockFormatted . ' ' . ($row['unit'] ?? 'pcs'));
+    ?>
+</td>
 
                                 <?php $role = $_SESSION['role'] ?? ''; ?>
 

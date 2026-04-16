@@ -1,7 +1,6 @@
 <?php
 require_once 'includes/auth_check.php';
 requireRole(['admin', 'owner', 'kasir']);
-requireLogin();
 require_once 'includes/koneksi.php';
 
 $title = "Dashboard";
@@ -12,17 +11,26 @@ $queryTotalBarang = "SELECT COUNT(*) AS total_barang FROM product_variants";
 $resultTotalBarang = mysqli_query($conn, $queryTotalBarang);
 $totalBarang = mysqli_fetch_assoc($resultTotalBarang)['total_barang'] ?? 0;
 
-// Stok Menipis (stock > 0 dan <= 10)
-$queryStokMenipis = "SELECT COUNT(*) AS stok_menipis FROM product_variants WHERE stock > 0 AND stock <= 10";
+// Stok Menipis
+$queryStokMenipis = "
+    SELECT COUNT(*) AS stok_menipis
+    FROM product_variants
+    WHERE stock > 0
+    AND stock <= min_stock
+";
 $resultStokMenipis = mysqli_query($conn, $queryStokMenipis);
 $stokMenipis = mysqli_fetch_assoc($resultStokMenipis)['stok_menipis'] ?? 0;
 
 // Stok Habis
-$queryStokHabis = "SELECT COUNT(*) AS stok_habis FROM product_variants WHERE stock <= 0";
+$queryStokHabis = "
+    SELECT COUNT(*) AS stok_habis
+    FROM product_variants
+    WHERE stock <= 0
+";
 $resultStokHabis = mysqli_query($conn, $queryStokHabis);
 $stokHabis = mysqli_fetch_assoc($resultStokHabis)['stok_habis'] ?? 0;
 
-// Transaksi Hari Ini (paid saja)
+// Transaksi Hari Ini
 $queryTransaksiHariIni = "
     SELECT COUNT(*) AS transaksi_hari_ini
     FROM transactions
@@ -32,7 +40,7 @@ $queryTransaksiHariIni = "
 $resultTransaksiHariIni = mysqli_query($conn, $queryTransaksiHariIni);
 $transaksiHariIni = mysqli_fetch_assoc($resultTransaksiHariIni)['transaksi_hari_ini'] ?? 0;
 
-// Pendapatan Hari Ini (paid saja)
+// Pendapatan Hari Ini
 $queryPendapatanHariIni = "
     SELECT COALESCE(SUM(total_price), 0) AS pendapatan_hari_ini
     FROM transactions
@@ -62,30 +70,39 @@ $pendapatanHariIni = mysqli_fetch_assoc($resultPendapatanHariIni)['pendapatan_ha
                 </div>
 
                 <div class="dashboard-grid">
-                    <div class="dashboard-card total-barang">
-                        <h3>Total Barang</h3>
-                        <div class="value"><?= number_format((int) $totalBarang); ?></div>
-                    </div>
+                    <a href="pages/data_barang.php" class="dashboard-link">
+    <div class="dashboard-card total-barang">
+        <h3>Total Barang</h3>
+        <div class="value"><?= number_format((int) $totalBarang); ?></div>
+    </div>
+</a>
 
-                    <div class="dashboard-card stok-menipis">
-                        <h3>Stok Menipis</h3>
-                        <div class="value"><?= number_format((int) $stokMenipis); ?></div>
-                    </div>
+<a href="pages/data_barang.php?filter=menipis" class="dashboard-link">
+    <div class="dashboard-card stok-menipis">
+        <h3>Stok Menipis</h3>
+        <div class="value"><?= number_format((int) $stokMenipis); ?></div>
+    </div>
+</a>
 
-                    <div class="dashboard-card stok-habis">
-                        <h3>Stok Habis</h3>
-                        <div class="value"><?= number_format((int) $stokHabis); ?></div>
-                    </div>
+<a href="pages/data_barang.php?filter=habis" class="dashboard-link">
+    <div class="dashboard-card stok-habis">
+        <h3>Stok Habis</h3>
+        <div class="value"><?= number_format((int) $stokHabis); ?></div>
+    </div>
+</a>
+<a href="pages/riwayat_kasir.php" class="dashboard-link">
+    <div class="dashboard-card transaksi-hari-ini">
+        <h3>Transaksi Hari Ini</h3>
+        <div class="value"><?= number_format((int) $transaksiHariIni); ?></div>
+    </div>
+</a>
 
-                    <div class="dashboard-card transaksi-hari-ini">
-                        <h3>Transaksi Hari Ini</h3>
-                        <div class="value"><?= number_format((int) $transaksiHariIni); ?></div>
-                    </div>
 
-                    <div class="dashboard-card pendapatan-hari-ini">
-                        <h3>Pendapatan Hari Ini</h3>
-                        <div class="value">Rp <?= number_format((int) $pendapatanHariIni, 0, ',', '.'); ?></div>
-                    </div>
+    <div class="dashboard-card pendapatan-hari-ini">
+        <h3>Pendapatan Hari Ini</h3>
+        <div class="value">Rp <?= number_format((int) $pendapatanHariIni, 0, ',', '.'); ?></div>
+    </div>
+
                 </div>
             </div>
 

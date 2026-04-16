@@ -12,6 +12,7 @@ if ($id <= 0) {
     die("ID transaksi tidak valid.");
 }
 
+
 // ambil header transaksi
 $queryTransaction = "
     SELECT
@@ -52,8 +53,10 @@ $queryDetail = "
         td.type_name,
         td.size_name,
         td.color_name,
-        td.sku
+        td.sku,
+        pv.unit
     FROM transaction_details td
+    LEFT JOIN product_variants pv ON pv.id = td.variant_id
     WHERE td.transaction_id = ?
     ORDER BY td.id ASC
 ";
@@ -155,7 +158,6 @@ $resultDetail = mysqli_stmt_get_result($stmtDetail);
                             <th>Barang</th>
                             <th>Qty</th>
                             <th>Harga</th>
-                            <th>Diskon</th>
                             <th>Subtotal</th>
                         </tr>
                     </thead>
@@ -178,9 +180,14 @@ $resultDetail = mysqli_stmt_get_result($stmtDetail);
                                 <br>
                                 <small>SKU: <?= htmlspecialchars($row['sku']); ?></small>
                             </td>
-                            <td><?= (int) $row['qty']; ?></td>
+                            <td>
+    <?php
+    $qty = (float) $row['qty'];
+    $qtyFormatted = rtrim(rtrim(number_format($qty, 2, '.', ''), '0'), '.');
+    echo htmlspecialchars($qtyFormatted . ' ' . ($row['unit'] ?? ''));
+    ?>
+</td>
                             <td>Rp <?= number_format((int) $row['price']); ?></td>
-                            <td>Rp <?= number_format((int) $row['discount']); ?></td>
                             <td>Rp <?= number_format((int) $row['subtotal']); ?></td>
                         </tr>
                         <?php
