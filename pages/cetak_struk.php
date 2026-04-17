@@ -78,7 +78,7 @@ function formatQtyStruk($qty): string
             background: #fff;
             color: #000;
             font-family: monospace;
-            font-size: 14px;
+            font-size: 12px;
             line-height: 1.35;
         }
 

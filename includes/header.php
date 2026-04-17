@@ -19,5 +19,16 @@
         <?= htmlspecialchars($_SESSION['user_name'] ?? 'User'); ?>
       </span>
     </div>
+<div class="container-btn-mobile">
+    <button class="mobile-menu-btn" onclick="toggleSidebar()">
+  <i class="fas fa-bars"></i>
+</button>
+</div>
   </div>
 </div>
+
+<script>
+function toggleSidebar() {
+  document.querySelector('.sidebar').classList.toggle('show');
+}
+</script>

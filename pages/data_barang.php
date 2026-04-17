@@ -65,7 +65,7 @@ if ($filter === 'habis') {
 }
 
 if ($variantId > 0) {
-    $query .= " WHERE pv.id = $variantId ";
+    $query .= " AND pv.id = $variantId ";
 }
 
 $query .= " ORDER BY p.name ASC, pv.id ASC";
