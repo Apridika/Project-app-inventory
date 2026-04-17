@@ -172,16 +172,15 @@ $result = mysqli_query($conn, $query);
                                 <?php $role = $_SESSION['role'] ?? ''; ?>
 
                                 <td class="action-cell">
-                                    <?php if (in_array($role, ['admin', 'owner'], true)): ?>
+                                
                                     <a href="edit.php?id=<?= (int) $row['id']; ?>" class="btn-icon edit">
                                         <i class="fa-solid fa-pen"></i>
                                     </a>
+                                    <?php if (in_array($role, ['admin', 'owner'], true)): ?>
                                     <a href="hapus.php?id=<?= (int) $row['id']; ?>" class="btn-icon delete"
                                         onclick="return confirm('Yakin?')">
                                         <i class="fa-solid fa-trash"></i>
                                     </a>
-                                    <?php else: ?>
-                                    <span style="color:#888;">Lihat</span>
                                     <?php endif; ?>
                                 </td>
                             </tr>

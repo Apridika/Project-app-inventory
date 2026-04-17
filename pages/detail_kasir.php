@@ -210,6 +210,9 @@ $resultDetail = mysqli_stmt_get_result($stmtDetail);
                     <?php endif; ?>
 
                     <a href="riwayat_kasir.php" class="btn-secondary">Kembali</a>
+                    <a href="cetak_struk.php?id=<?= (int) $transaction['id']; ?>" target="_blank" class="btn-secondary">
+    Cetak Struk
+</a>
                 </div>
             </div>
 

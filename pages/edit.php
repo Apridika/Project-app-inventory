@@ -98,7 +98,9 @@ if (!$row) {
 
                             <div class="form-group">
                                 <label>SKU</label>
-                                <input type="text" name="sku" value="<?= htmlspecialchars($row['sku']); ?>" required>
+                                <div class="form-static">
+                                    <?= htmlspecialchars($row ['sku'] ?? '-'); ?>
+                                </div>
                             </div>
 
                             <div class="form-group">
